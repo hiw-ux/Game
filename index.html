@@ -2,219 +2,170 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>سيريتل — مركز خدمة العملاء</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:#05070c;font-family:'Cairo',system-ui,sans-serif;color:#e8eefb;user-select:none}
-#viewport{position:fixed;inset:0;display:grid;place-items:center}
-#stage{width:1280px;height:800px;position:relative;transform-origin:center center}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#020408;font-family:'Cairo',system-ui,sans-serif;color:#e8eefb;user-select:none}
 
-/* ================= ROOM ================= */
-.room{position:absolute;inset:0;overflow:hidden;background:#0b0f16}
+/* ================= SCENE & CAMERA ================= */
+#viewport{position:fixed;inset:0;display:grid;place-items:center;perspective:1500px}
+#stage{width:1280px;height:800px;position:relative;transform-origin:center center;transition:transform 1.5s cubic-bezier(0.7, 0, 0.2, 1), filter 1.5s ease}
+#stage.zoomed{transform:scale(1.08) translateY(-10px);filter:blur(0px)}
+
+.room{position:absolute;inset:0;overflow:hidden;background:#080c12;transform:preserve-3d}
 .wall{position:absolute;inset:0 0 300px 0;
-  background:radial-gradient(900px 500px at 50% -15%,#31415f 0%,#18222f 55%,#0b1017 100%);}
-.wall::after{content:'';position:absolute;inset:0;opacity:.5;
-  background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 2px,transparent 2px 140px);}
-.neon{position:absolute;left:50%;top:26px;transform:translateX(-50%);font-weight:800;letter-spacing:6px;
-  font-size:13px;color:#37e0c0;opacity:.35;text-shadow:0 0 18px #37e0c0}
-.floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(#0e1520,#06090e)}
-.desk-top{position:absolute;left:10px;right:10px;top:520px;height:120px;
-  background:linear-gradient(#6a4b36,#3b2a1d);clip-path:polygon(2.4% 0,97.6% 0,100% 100%,0 100%);
-  box-shadow:0 -14px 50px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,220,180,.25)}
-.desk-front{position:absolute;left:0;right:0;top:638px;height:162px;
-  background:linear-gradient(#2b1f16,#120c08);box-shadow:inset 0 8px 24px rgba(0,0,0,.6)}
-.desk-front::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;
-  background:linear-gradient(90deg,transparent,#ffcf9a55,transparent)}
-
-/* ================= CUSTOMER HOLOGRAM ================= */
-.cust-panel{position:absolute;left:18px;top:56px;width:286px;height:340px;border-radius:18px;
-  background:linear-gradient(160deg,rgba(30,44,66,.92),rgba(12,18,28,.96));
-  border:1px solid rgba(90,220,255,.28);box-shadow:0 0 40px rgba(40,180,255,.18),0 20px 50px rgba(0,0,0,.6);
-  padding:14px;display:flex;flex-direction:column;gap:10px;
-  opacity:0;transform:translateY(20px) scale(.94);transition:.45s cubic-bezier(.2,1.4,.4,1);pointer-events:none}
-.cust-panel.show{opacity:1;transform:translateY(0) scale(1)}
-.cust-panel::after{content:'';position:absolute;inset:0;border-radius:18px;pointer-events:none;
-  background:linear-gradient(180deg,rgba(70,230,255,.10),transparent 40%);
-  animation:holo 3.2s ease-in-out infinite}
-@keyframes holo{0%,100%{opacity:.4}50%{opacity:.9}}
-.cp-avatar{width:100%;height:170px;border-radius:12px;overflow:hidden;background:#0d1520;
-  border:1px solid rgba(90,220,255,.2);position:relative}
-.cp-avatar svg{width:100%;height:100%;display:block}
-.cp-name{font-weight:800;font-size:15px;text-align:center}
-.cp-mood{text-align:center;font-size:11px;color:#8fb4d8;margin-top:-6px}
-.cp-sat{height:9px;border-radius:9px;background:#101a26;overflow:hidden;border:1px solid #1e2c3d}
-.cp-sat-fill{height:100%;width:60%;border-radius:9px;transition:.5s ease;
-  background:linear-gradient(90deg,#ff4d4d,#ffb020,#3ddc84)}
-.cp-tag{text-align:center;font-size:10px;color:#4fd1c5;letter-spacing:.5px}
-.mouth{transition:ry .08s}
-.speaking .mouth{animation:talk .28s infinite alternate}
-@keyframes talk{from{ry:3}to{ry:11}}
-.eye{animation:blink 4.5s infinite}
-@keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(.1)}}
+  background:radial-gradient(800px 500px at 50% -20%,#1e2c40 0%,#111722 60%,#06090e 100%);
+  border-bottom:1px solid #2a3a50; box-shadow: inset 0 20px 60px rgba(0,0,0,0.8);}
+.wall::after{content:'';position:absolute;inset:0;opacity:.4;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 2px,transparent 2px 150px);}
+.floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(#0a1017,#020408)}
+.desk-top{position:absolute;left:20px;right:20px;top:500px;height:160px;
+  background:linear-gradient(#5c4033,#3b2a1d);clip-path:polygon(2% 0,98% 0,100% 100%,0 100%);
+  box-shadow:0 -10px 40px rgba(0,0,0,.8), inset 0 3px 0 rgba(255,220,180,.15), inset 0 -20px 40px rgba(0,0,0,0.5);
+  transform:rotateX(15deg); transform-origin:bottom;}
+.desk-front{position:absolute;left:0;right:0;top:630px;height:170px;
+  background:linear-gradient(#2b1f16,#0a0704);box-shadow:inset 0 10px 30px rgba(0,0,0,.8)}
 
 /* ================= MONITOR ================= */
-.monitor{position:absolute;left:320px;top:70px;width:610px;height:450px;z-index:5}
-.monitor-bezel{position:absolute;inset:0;border-radius:16px;padding:13px 13px 26px;
-  background:linear-gradient(160deg,#39445a,#141a24 60%,#0c1119);
-  box-shadow:0 34px 70px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.12), 0 0 0 1px #000;
-  transform:perspective(1500px) rotateY(-5deg) rotateX(1.5deg)}
-.monitor-bezel::after{content:'';position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
-  width:70px;height:5px;border-radius:5px;background:#0a0d12;box-shadow:inset 0 1px 2px #000}
-.screen{width:100%;height:100%;border-radius:7px;overflow:hidden;display:flex;flex-direction:column;
-  background:linear-gradient(#0b1420,#070c14);box-shadow:inset 0 0 60px rgba(0,180,255,.07)}
-.scr-top{height:26px;display:flex;align-items:center;gap:6px;padding:0 10px;
-  background:linear-gradient(#131d2b,#0c141f);border-bottom:1px solid #16202e;font-size:10px;color:#7fa3c7}
-.dot{width:7px;height:7px;border-radius:50%}
+.monitor{position:absolute;left:290px;top:40px;width:680px;height:480px;z-index:5;
+  transform:perspective(1200px) rotateY(-4deg) rotateX(2deg);}
+.monitor-bezel{position:absolute;inset:0;border-radius:16px;padding:14px 14px 30px;
+  background:linear-gradient(160deg,#2b3545,#0f141c 60%,#080c12);
+  box-shadow:0 40px 80px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.15), 0 0 0 2px #000;
+}
+.monitor-bezel::after{content:'';position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
+  width:80px;height:6px;border-radius:6px;background:#000;box-shadow:inset 0 1px 3px #000}
+.screen{width:100%;height:100%;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;
+  background:linear-gradient(#0b1420,#050a0f);box-shadow:inset 0 0 80px rgba(0,180,255,.1)}
+.scr-top{height:28px;display:flex;align-items:center;gap:6px;padding:0 12px;
+  background:linear-gradient(#111b26,#0a1017);border-bottom:1px solid #1a2636;font-size:10px;color:#7fa3c7}
+.dot{width:8px;height:8px;border-radius:50%}
 .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
-.scr-title{margin-inline-start:8px;font-weight:600;color:#9fc4e0}
-.scr-clock{margin-inline-start:auto;color:#4fd1c5;font-weight:600;letter-spacing:1px}
-.cust-strip{padding:7px 10px;background:#0e1926;border-bottom:1px solid #16202e;display:flex;
-  justify-content:space-between;align-items:center;font-size:11px}
-.cs-name{font-weight:800;color:#dfe9f5}
-.cs-sub{color:#6f8fae;font-size:10px}
-.chat{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:7px;
+.scr-title{margin-inline-start:8px;font-weight:700;color:#9fc4e0}
+.scr-clock{margin-inline-start:auto;color:#4fd1c5;font-weight:700;letter-spacing:1px;font-family:monospace}
+
+/* ================= UI INSIDE MONITOR ================= */
+.ui-layer{flex:1;display:flex;position:relative}
+.ui-sidebar{width:280px;border-left:1px solid #16202e;background:#0a131c;display:flex;flex-direction:column}
+.cp-avatar{width:100%;height:180px;background:#0d1520;border-bottom:1px solid #16202e;position:relative}
+.cp-avatar svg{width:100%;height:100%;display:block}
+.cp-info{padding:15px;flex:1}
+.cp-name{font-weight:900;font-size:18px;margin-bottom:5px}
+.cp-mood{font-size:11px;color:#8fb4d8;margin-bottom:15px}
+.cp-sat{height:8px;border-radius:8px;background:#101a26;overflow:hidden;border:1px solid #1e2c3d;margin-bottom:15px}
+.cp-sat-fill{height:100%;width:60%;border-radius:8px;transition:.5s ease;background:linear-gradient(90deg,#ff4d4d,#ffb020,#3ddc84)}
+.cp-tag{font-size:11px;color:#4fd1c5;background:rgba(79,209,197,0.1);padding:6px 10px;border-radius:6px;text-align:center}
+.ui-main{flex:1;display:flex;flex-direction:column}
+.chat{flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:10px;
   scrollbar-width:thin;scrollbar-color:#1e2c3d transparent}
 .chat::-webkit-scrollbar{width:6px}
 .chat::-webkit-scrollbar-thumb{background:#1e2c3d;border-radius:6px}
-.msg{max-width:82%;padding:7px 10px;border-radius:11px;font-size:11.5px;line-height:1.55;
-  animation:pop .25s ease;word-break:break-word}
-@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.msg.customer{align-self:flex-start;background:#182b3d;border:1px solid #1f3a52;color:#cfe4f5;
-  border-start-start-radius:3px}
-.msg.agent{align-self:flex-end;background:linear-gradient(#1d6b52,#14503e);color:#e6fff6;
-  border-start-end-radius:3px}
-.msg.sys{align-self:center;background:#141d29;border:1px dashed #2a3d52;color:#7fd1b9;font-size:10px;
-  font-family:monospace}
+.msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:12.5px;line-height:1.6;
+  animation:pop .3s ease;word-break:break-word}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.msg.customer{align-self:flex-start;background:#182b3d;border:1px solid #1f3a52;color:#cfe4f5;border-top-left-radius:2px}
+.msg.agent{align-self:flex-end;background:linear-gradient(#1d6b52,#14503e);color:#e6fff6;border-top-right-radius:2px}
+.msg.sys{align-self:center;background:#141d29;border:1px dashed #2a3d52;color:#7fd1b9;font-size:10.5px;font-family:monospace}
 .msg.typing{color:#6f8fae;font-style:italic}
-.quick{display:flex;gap:5px;padding:0 8px 6px;flex-wrap:wrap}
-.chip{font-size:9.5px;padding:4px 8px;border-radius:20px;background:#12202e;border:1px solid #22374c;
-  color:#8fb4d8;cursor:pointer;transition:.2s;white-space:nowrap}
-.chip:hover{background:#1a3247;color:#cfe4f5;border-color:#37e0c0}
-.composer{display:flex;gap:6px;padding:8px;background:#0a121c;border-top:1px solid #16202e}
-.composer input{flex:1;background:#101c28;border:1px solid #1e3044;border-radius:8px;padding:8px 11px;
-  color:#e8eefb;font-family:inherit;font-size:11.5px;outline:none}
-.composer input:focus{border-color:#37e0c0;box-shadow:0 0 0 2px rgba(55,224,192,.15)}
-.composer button{border:none;border-radius:8px;padding:0 14px;font-family:inherit;font-weight:800;
-  font-size:11px;cursor:pointer;transition:.2s}
+.composer{display:flex;gap:8px;padding:12px;background:#0a121c;border-top:1px solid #16202e}
+.composer input{flex:1;background:#101c28;border:1px solid #1e3044;border-radius:8px;padding:10px 14px;
+  color:#e8eefb;font-family:inherit;font-size:12.5px;outline:none}
+.composer input:focus{border-color:#37e0c0}
+.composer button{border:none;border-radius:8px;padding:0 18px;font-family:inherit;font-weight:800;
+  font-size:12px;cursor:pointer;transition:.2s}
 #send{background:linear-gradient(#2ee6a8,#12a97c);color:#04241a}
-#send:hover{filter:brightness(1.12)}
 #endBtn{background:linear-gradient(#ff6b6b,#c92a2a);color:#fff}
-#endBtn:hover{filter:brightness(1.12)}
 
 /* ================= PHONE ================= */
-.phone{position:absolute;left:34px;top:398px;width:256px;height:118px;z-index:6}
+.phone{position:absolute;left:40px;top:420px;width:240px;height:120px;z-index:6;
+  transform:perspective(800px) rotateX(15deg) rotateZ(-3deg);}
 .phone-body{position:absolute;inset:0;border-radius:14px;
-  background:linear-gradient(160deg,#2b3444,#12171f);box-shadow:0 18px 40px rgba(0,0,0,.7),
-  inset 0 1px 0 rgba(255,255,255,.12),0 0 0 1px #000;
-  transform:perspective(900px) rotateX(14deg) rotateZ(-2deg);
-  display:flex;align-items:center;justify-content:space-between;padding:0 12px}
-.phone-lcd{font-size:10px;color:#5ce0b0;font-family:monospace;letter-spacing:.5px;
-  background:#08120e;border:1px solid #173a2c;border-radius:6px;padding:6px 8px;min-width:96px;text-align:center}
-.phone-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-family:inherit;
-  font-weight:800;font-size:12px;color:#fff;transition:.25s;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+  background:linear-gradient(160deg,#2b3444,#12171f);box-shadow:0 20px 40px rgba(0,0,0,.8),
+  inset 0 1px 0 rgba(255,255,255,.12),0 0 0 2px #000;
+  display:flex;align-items:center;justify-content:space-between;padding:0 15px}
+.phone-lcd{font-size:11px;color:#5ce0b0;font-family:monospace;
+  background:#08120e;border:1px solid #173a2c;border-radius:6px;padding:8px 10px;min-width:100px;text-align:center}
+.phone-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;font-family:inherit;
+  font-weight:900;font-size:13px;color:#fff;transition:.2s;box-shadow:0 6px 20px rgba(0,0,0,.6)}
 .phone-btn.answer{background:radial-gradient(circle at 35% 30%,#4ef0a6,#0f9c6c)}
 .phone-btn.hang{background:radial-gradient(circle at 35% 30%,#ff7b7b,#b81f1f)}
-.phone-btn:disabled{opacity:.28;cursor:not-allowed}
-.phone-btn:not(:disabled):hover{transform:scale(1.08)}
-.receiver{position:absolute;left:-6px;top:-16px;width:180px;height:26px;border-radius:14px;
-  background:linear-gradient(#3c4757,#1a212b);box-shadow:0 8px 18px rgba(0,0,0,.6)}
+.phone-btn:disabled{opacity:.3;cursor:not-allowed}
+.phone-btn:not(:disabled):hover{transform:scale(1.05)}
 .ringing{animation:ringsh .35s infinite}
-@keyframes ringsh{0%,100%{transform:perspective(900px) rotateX(14deg) rotateZ(-2deg) translateX(0)}
-  25%{transform:perspective(900px) rotateX(14deg) rotateZ(-1deg) translateX(-4px)}
-  75%{transform:perspective(900px) rotateX(14deg) rotateZ(-3deg) translateX(4px)}}
-.ring-glow{position:absolute;inset:-14px;border-radius:22px;pointer-events:none;opacity:0;
-  background:radial-gradient(circle,rgba(60,230,180,.35),transparent 70%);transition:.3s}
+@keyframes ringsh{0%,100%{transform:perspective(800px) rotateX(15deg) rotateZ(-3deg) translateX(0)}
+  25%{transform:perspective(800px) rotateX(15deg) rotateZ(-2deg) translateX(-5px)}
+  75%{transform:perspective(800px) rotateX(15deg) rotateZ(-4deg) translateX(5px)}}
+.ring-glow{position:absolute;inset:-15px;border-radius:24px;pointer-events:none;opacity:0;
+  background:radial-gradient(circle,rgba(60,230,180,.4),transparent 70%);transition:.3s}
 .ring-glow.on{opacity:1;animation:pulse 1.2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.12);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.15);opacity:1}}
 
 /* ================= TABLET ================= */
-.tablet{position:absolute;left:938px;top:300px;width:312px;height:222px;z-index:6}
-.tablet-body{position:absolute;inset:0;border-radius:12px;padding:8px;
+.tablet{position:absolute;left:980px;top:280px;width:280px;height:220px;z-index:6}
+.tablet-body{position:absolute;inset:0;border-radius:12px;padding:10px;
   background:linear-gradient(160deg,#39445a,#0f141c);
-  box-shadow:0 24px 50px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.14),0 0 0 1px #000;
-  transform:perspective(1100px) rotateY(-16deg) rotateX(9deg) rotateZ(-3deg)}
+  box-shadow:0 25px 50px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.14),0 0 0 2px #000;
+  transform:perspective(1000px) rotateY(-18deg) rotateX(8deg) rotateZ(-4deg)}
 .tablet-screen{width:100%;height:100%;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;
   background:linear-gradient(#0a1420,#070d15)}
-.tt-title{font-size:9.5px;font-weight:800;color:#4fd1c5;padding:5px 8px;background:#0d1926;
-  border-bottom:1px solid #16202e;letter-spacing:.5px;display:flex;justify-content:space-between}
-.tt-title span:last-child{color:#5f7f9e;font-weight:400}
-.tools{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px;align-content:start}
-.tool{display:flex;align-items:center;gap:5px;padding:0 6px;height:31px;border-radius:6px;
+.tt-title{font-size:10px;font-weight:800;color:#4fd1c5;padding:6px 10px;background:#0d1926;
+  border-bottom:1px solid #16202e;display:flex;justify-content:space-between}
+.tools{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px;align-content:start;overflow-y:auto}
+.tool{display:flex;align-items:center;gap:6px;padding:0 8px;height:34px;border-radius:6px;
   background:linear-gradient(#14212e,#0e1823);border:1px solid #1e3044;color:#a8c8e0;
-  font-size:9.5px;font-family:inherit;cursor:pointer;transition:.16s;text-align:right;font-weight:600}
+  font-size:10px;font-family:inherit;cursor:pointer;transition:.16s;text-align:right;font-weight:700}
 .tool:hover:not(:disabled){background:#1b3448;border-color:#37e0c0;color:#eafff8;transform:translateY(-1px)}
-.tool:active:not(:disabled){transform:translateY(0) scale(.97)}
-.tool:disabled{opacity:.32;cursor:not-allowed}
+.tool:disabled{opacity:.3;cursor:not-allowed}
 .tool.done{border-color:#2ee6a8;background:#0e2a22;color:#5ff0bb}
-.tool .ico{font-size:12px}
 
-/* decor */
-.mug{position:absolute;left:862px;top:462px;width:34px;height:44px;border-radius:4px 4px 12px 12px;
-  background:linear-gradient(#f2f2f2,#c9cfd6);box-shadow:0 10px 18px rgba(0,0,0,.6)}
-.mug::before{content:'';position:absolute;right:-12px;top:9px;width:14px;height:20px;border:4px solid #dfe4ea;
-  border-left:none;border-radius:0 10px 10px 0}
-.mug::after{content:'';position:absolute;left:4px;right:4px;top:2px;height:6px;border-radius:50%;background:#4a2d1a}
-.plant{position:absolute;left:846px;top:392px;width:56px;height:74px}
-.plant .pot{position:absolute;bottom:0;left:8px;width:40px;height:30px;border-radius:4px 4px 10px 10px;
-  background:linear-gradient(#a0522d,#6b3418)}
-.plant .leaf{position:absolute;bottom:24px;left:50%;width:10px;height:52px;border-radius:50% 50% 40% 40%;
-  background:linear-gradient(#3ddc84,#1a7a4a);transform-origin:bottom center;box-shadow:0 0 14px rgba(61,220,132,.35)}
-.plant .leaf:nth-child(2){transform:translateX(-50%) rotate(-24deg);height:44px}
-.plant .leaf:nth-child(3){transform:translateX(-50%) rotate(24deg);height:48px}
-.plant .leaf:nth-child(4){transform:translateX(-50%) rotate(0deg);height:56px}
-
-/* ================= OVERLAYS ================= */
-#startScreen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:16px;text-align:center;padding:20px;
-  background:radial-gradient(900px 600px at 50% 30%,#16324a,#05080e 70%)}
-#startScreen h1{font-size:44px;font-weight:800;letter-spacing:8px;
-  background:linear-gradient(90deg,#2ee6a8,#4fc3f7,#2ee6a8);-webkit-background-clip:text;background-clip:text;
-  color:transparent;filter:drop-shadow(0 0 24px rgba(46,230,168,.35))}
-#startScreen p{color:#8fb4d8;font-size:14px;max-width:520px;line-height:1.8}
-#apiKeyInput{width:min(460px,90vw);padding:13px 16px;border-radius:12px;border:1px solid #23415a;
-  background:#0b1824;color:#e8eefb;font-family:inherit;font-size:13px;outline:none;text-align:left;direction:ltr}
-#apiKeyInput:focus{border-color:#2ee6a8;box-shadow:0 0 0 3px rgba(46,230,168,.12)}
-#startBtn{margin-top:6px;padding:14px 52px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;
-  font-weight:800;font-size:16px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c);
-  box-shadow:0 12px 34px rgba(46,230,168,.3);transition:.2s}
+/* ================= START SCREEN ================= */
+#startScreen{position:absolute;inset:0;z-index:100;display:flex;align-items:center;
+  background:rgba(0,0,0,0.4);backdrop-filter:blur(2px);transition:opacity 1s ease}
+.start-box{width:380px;margin-right:80px;background:linear-gradient(160deg,rgba(20,30,45,0.95),rgba(10,15,22,0.98));
+  border:1px solid #2a405a;border-radius:16px;padding:30px;box-shadow:0 30px 80px rgba(0,0,0,0.8);
+  transform:translateX(-30px);opacity:0;animation:slideIn 0.8s forwards 0.2s}
+@keyframes slideIn{to{transform:translateX(0);opacity:1}}
+.start-box h1{font-size:32px;font-weight:900;color:#2ee6a8;margin-bottom:5px;text-shadow:0 0 20px rgba(46,230,168,0.4)}
+.start-box p{font-size:13px;color:#8fb4d8;line-height:1.7;margin-bottom:20px}
+#apiKeyInput{width:100%;padding:12px 15px;border-radius:10px;border:1px solid #23415a;
+  background:#0b1824;color:#e8eefb;font-family:inherit;font-size:12px;outline:none;margin-bottom:15px;direction:ltr}
+#apiKeyInput:focus{border-color:#2ee6a8;box-shadow:0 0 0 3px rgba(46,230,168,.15)}
+#startBtn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;
+  font-weight:900;font-size:16px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c);
+  box-shadow:0 10px 30px rgba(46,230,168,.3);transition:.2s; display:flex; justify-content:center; align-items:center; gap:10px}
 #startBtn:hover{transform:translateY(-2px);filter:brightness(1.1)}
-.hint{font-size:11px!important;color:#5f7f9e!important;max-width:480px}
 
-#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;
-  background:#132434;border:1px solid #2ee6a8;color:#c9fff0;padding:10px 20px;border-radius:30px;
-  font-size:12.5px;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+/* ================= MISC ================= */
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;
+  background:#132434;border:1px solid #2ee6a8;color:#c9fff0;padding:10px 25px;border-radius:30px;
+  font-size:13px;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-#modal{position:fixed;inset:0;z-index:250;display:none;place-items:center;background:rgba(3,6,10,.75);
-  backdrop-filter:blur(4px)}
+#modal{position:fixed;inset:0;z-index:250;display:none;place-items:center;background:rgba(3,6,10,.85);backdrop-filter:blur(5px)}
 #modal.show{display:grid}
-.modal-box{width:min(400px,92vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
-  border-radius:16px;padding:20px;box-shadow:0 30px 70px rgba(0,0,0,.8);animation:pop .25s}
-.modal-box h3{font-size:15px;margin-bottom:14px;color:#4fd1c5}
-.fld{display:block;margin-bottom:11px}
-.fld span{display:block;font-size:11px;color:#8fb4d8;margin-bottom:5px}
-.fld input,.fld select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid #1e3044;
-  background:#0a1520;color:#e8eefb;font-family:inherit;font-size:12.5px;outline:none}
-.fld input:focus,.fld select:focus{border-color:#2ee6a8}
-.modal-actions{display:flex;gap:8px;margin-top:16px}
-.modal-actions button{flex:1;padding:11px;border-radius:9px;border:none;font-family:inherit;font-weight:800;
-  font-size:12.5px;cursor:pointer;transition:.2s}
+.modal-box{width:min(400px,90vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
+  border-radius:16px;padding:25px;box-shadow:0 30px 70px rgba(0,0,0,.8);animation:pop .3s}
+.modal-box h3{font-size:16px;margin-bottom:15px;color:#4fd1c5}
+.fld{display:block;margin-bottom:12px}
+.fld span{display:block;font-size:12px;color:#8fb4d8;margin-bottom:6px}
+.fld input,.fld select{width:100%;padding:12px;border-radius:8px;border:1px solid #1e3044;
+  background:#0a1520;color:#e8eefb;font-family:inherit;font-size:13px;outline:none}
+.fld input:focus{border-color:#2ee6a8}
+.modal-actions{display:flex;gap:10px;margin-top:20px}
+.modal-actions button{flex:1;padding:12px;border-radius:8px;border:none;font-family:inherit;font-weight:900;font-size:13px;cursor:pointer}
 #modalOk{background:linear-gradient(#2ee6a8,#12a97c);color:#04241a}
-#modalCancel{background:#1a2634;color:#8fb4d8;border:1px solid #24384c}
-.modal-actions button:hover{filter:brightness(1.12)}
-
-#result{position:fixed;inset:0;z-index:260;display:none;place-items:center;background:rgba(3,6,10,.82);
-  backdrop-filter:blur(5px)}
+#modalCancel{background:#1a2634;color:#8fb4d8}
+#result{position:fixed;inset:0;z-index:260;display:none;place-items:center;background:rgba(3,6,10,.9);backdrop-filter:blur(6px)}
 #result.show{display:grid}
-.result-box{width:min(380px,92vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
-  border-radius:18px;padding:26px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.8);animation:pop .3s}
-.result-box h2{font-size:22px;margin-bottom:6px}
-.result-box .score{font-size:44px;font-weight:800;color:#2ee6a8;margin:10px 0;text-shadow:0 0 24px rgba(46,230,168,.4)}
-.result-box p{font-size:12.5px;color:#8fb4d8;line-height:1.8}
-.result-box button{margin-top:18px;padding:12px 40px;border-radius:11px;border:none;cursor:pointer;
-  font-family:inherit;font-weight:800;font-size:13.5px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c)}
+.result-box{width:min(380px,90vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
+  border-radius:16px;padding:30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.9);animation:pop .3s}
+.result-box h2{font-size:22px;margin-bottom:10px}
+.result-box .score{font-size:46px;font-weight:900;color:#2ee6a8;margin:15px 0;text-shadow:0 0 30px rgba(46,230,168,.5)}
+.result-box p{font-size:13px;color:#8fb4d8;line-height:1.8}
+.result-box button{margin-top:25px;padding:14px 40px;border-radius:10px;border:none;cursor:pointer;
+  font-family:inherit;font-weight:900;font-size:14px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c)}
 </style>
 </head>
 <body>
@@ -222,56 +173,51 @@ html,body{height:100%;overflow:hidden;background:#05070c;font-family:'Cairo',sys
   <div id="stage">
     <div class="room">
       <div class="wall"></div>
-      <div class="neon">SYRIATEL — CALL CENTER</div>
       <div class="floor"></div>
-
       <div class="desk-top"></div>
       <div class="desk-front"></div>
 
-      <!-- CUSTOMER HOLOGRAM -->
-      <div class="cust-panel" id="custPanel">
-        <div class="cp-avatar" id="cpAvatar"></div>
-        <div class="cp-name" id="cpName">—</div>
-        <div class="cp-mood" id="cpMood">—</div>
-        <div class="cp-sat"><div class="cp-sat-fill" id="cpSat"></div></div>
-        <div class="cp-tag" id="cpTag">—</div>
-      </div>
-
-      <!-- MONITOR -->
       <div class="monitor">
         <div class="monitor-bezel">
           <div class="screen">
             <div class="scr-top">
               <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-              <span class="scr-title">Syriatel CRM</span>
+              <span class="scr-title">Syriatel CRM v4</span>
               <span class="scr-clock" id="clock">--:--</span>
             </div>
-            <div class="cust-strip">
-              <div class="cs-name" id="csName">لا يوجد مكالمة</div>
-              <div class="cs-sub" id="csSub">في انتظار اتصال...</div>
-            </div>
-            <div class="chat" id="chat"></div>
-            <div class="quick" id="quick"></div>
-            <div class="composer">
-              <input id="msg" placeholder="اكتب ردك للزبون..." autocomplete="off">
-              <button id="send">إرسال</button>
-              <button id="endBtn" title="إنهاء المكالمة">إنهاء</button>
+            <div class="ui-layer">
+              <div class="ui-sidebar" id="custPanel" style="opacity:0; transition:.4s">
+                <div class="cp-avatar" id="cpAvatar"></div>
+                <div class="cp-info">
+                  <div class="cp-name" id="cpName">—</div>
+                  <div class="cp-mood" id="cpMood">—</div>
+                  <div class="cp-sat"><div class="cp-sat-fill" id="cpSat"></div></div>
+                  <div class="cp-tag" id="cpTag">—</div>
+                </div>
+              </div>
+              <div class="ui-main">
+                <div class="chat" id="chat">
+                  <div class="msg sys" style="margin-top:auto">في انتظار بدء الدوام...</div>
+                </div>
+                <div class="composer">
+                  <input id="msg" placeholder="اكتب ردك للزبون..." autocomplete="off" disabled>
+                  <button id="send" disabled>إرسال</button>
+                  <button id="endBtn" disabled>إنهاء</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PHONE -->
       <div class="phone" id="phone">
         <div class="ring-glow" id="ringGlow"></div>
-        <div class="receiver"></div>
         <div class="phone-body" id="phoneBody">
           <div class="phone-lcd" id="phoneLcd">لا مكالمات</div>
           <button class="phone-btn answer" id="answerBtn" disabled>رد</button>
         </div>
       </div>
 
-      <!-- TABLET -->
       <div class="tablet">
         <div class="tablet-body">
           <div class="tablet-screen">
@@ -281,20 +227,22 @@ html,body{height:100%;overflow:hidden;background:#05070c;font-family:'Cairo',sys
         </div>
       </div>
 
-      <!-- DECOR -->
-      <div class="plant"><div class="leaf"></div><div class="leaf"></div><div class="leaf"></div><div class="pot"></div></div>
-      <div class="mug"></div>
     </div>
-  </div>
-</div>
 
-<div id="startScreen">
-  <h1>سيريتل</h1>
-  <p>مركز خدمة العملاء — أنت الموظف. رُد على الهاتف، استخدم أدوات النظام، وحل مشاكل الزبائن.<br>
-  كل زبون شخصية مختلفة، مشكلة مختلفة، وصورة متحركة وصوت.</p>
-  <input id="apiKeyInput" placeholder="Gemini API Key (اختياري - للذكاء الاصطناعي الحقيقي)" />
-  <button id="startBtn">ابدأ الدوام</button>
-  <p class="hint">بدون مفتاح: نمط محلي ذكي. مع المفتاح: الزبون يفهم كلامك فعلياً ويرد بحرية عبر Gemini.</p>
+    <!-- START SCREEN -->
+    <div id="startScreen">
+      <div class="start-box">
+        <h1>مركز خدمة سيريتل</h1>
+        <p>مرحباً بك. جهّز نفسك لاستقبال المكالمات، حل مشاكل المشتركين، والحفاظ على رضاهم.</p>
+        <input id="apiKeyInput" placeholder="مفتاح Gemini API (اختياري)">
+        <button id="startBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          ابدأ دوامك
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -320,42 +268,24 @@ html,body{height:100%;overflow:hidden;background:#05070c;font-family:'Cairo',sys
 </div>
 
 <script>
-/* ============================================================
-   HELPERS
-============================================================ */
 const $ = s => document.querySelector(s);
 const pick = a => a[Math.floor(Math.random()*a.length)];
 const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
 const clamp = (v,a=0,b=100) => Math.max(a,Math.min(b,v));
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
-/* ============================================================
-   STATE
-============================================================ */
 const state = {
-  phase:'idle',          // idle | ringing | active | ended
-  apiKey:null,
-  customer:null,
-  history:[],
-  sat:60,
-  voiceOn:true,
-  warnedAI:false,
-  stats:{calls:0, fixed:0, score:0},
-  stall:0
+  phase:'idle', apiKey:null, customer:null, history:[], sat:60, warnedAI:false,
+  stats:{calls:0, fixed:0, score:0}, stall:0, callTimeout:null
 };
 
-/* ============================================================
-   STAGE FIT
-============================================================ */
 function fitStage(){
   const s = Math.min(window.innerWidth/1280, window.innerHeight/800);
-  $('#stage').style.transform = 'scale(' + s + ')';
+  $('#stage').style.transform = `scale(${s})`;
 }
 window.addEventListener('resize', fitStage); fitStage();
 
-/* ============================================================
-   AUDIO (WebAudio SFX)
-============================================================ */
+/* AUDIO */
 let AC = null;
 function actx(){
   if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
@@ -372,849 +302,259 @@ function beep(freq=880, dur=.08, type='sine', vol=.05){
     o.start(); o.stop(a.currentTime + dur);
   }catch(e){}
 }
-function clickSound(){ beep(1200,.04,'square',.03); }
-function successSound(){ beep(880,.1,'sine',.06); setTimeout(()=>beep(1318,.16,'sine',.06),90); }
-function errorSound(){ beep(180,.18,'sawtooth',.05); }
-
+function successSound(){ beep(880,.1); setTimeout(()=>beep(1318,.15),90); }
 let ringTimer = null;
 function startRing(){
   if(ringTimer) return;
-  const ring = () => {
-    beep(1046,.11,'sine',.05);
-    setTimeout(()=>beep(1396,.11,'sine',.05),130);
-    setTimeout(()=>beep(1046,.11,'sine',.05),300);
-  };
-  ring();
-  ringTimer = setInterval(ring, 1700);
+  const ring = () => { beep(1046,.1); setTimeout(()=>beep(1396,.1),120); setTimeout(()=>beep(1046,.1),280); };
+  ring(); ringTimer = setInterval(ring, 1600);
 }
 function stopRing(){ clearInterval(ringTimer); ringTimer = null; }
 
-/* ============================================================
-   TTS
-============================================================ */
+/* TTS */
 let voices = [];
-function loadVoices(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
-if('speechSynthesis' in window){
-  loadVoices();
-  speechSynthesis.onvoiceschanged = loadVoices;
-}
+function loadVoices(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){} }
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 let speakToken = 0;
 function speak(text, pitch=1, rate=1){
-  if(!state.voiceOn || !('speechSynthesis' in window)) return;
+  if(!('speechSynthesis' in window)) return;
   const myToken = ++speakToken;
   try{
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     const ar = voices.filter(v => /^ar/i.test(v.lang));
-    const v = ar.find(x => /sy|sa|eg|jo|lb|ae/i.test(x.lang)) || ar[0];
+    const v = ar.find(x => /sy|sa/i.test(x.lang)) || ar[0];
     if(v) u.voice = v;
     u.lang = v ? v.lang : 'ar-SA';
-    u.pitch = pitch; u.rate = rate; u.volume = 1;
-    setSpeaking(true);
+    u.pitch = pitch; u.rate = rate;
     u.onend = () => { if(myToken === speakToken) setSpeaking(false); };
     u.onerror = () => { if(myToken === speakToken) setSpeaking(false); };
+    setSpeaking(true);
     speechSynthesis.speak(u);
-    // safety
-    const dur = Math.min(20000, 900 + text.length * 85);
-    setTimeout(()=>{ if(myToken === speakToken) setSpeaking(false); }, dur);
+    setTimeout(()=>{ if(myToken === speakToken) setSpeaking(false); }, Math.min(15000, 800 + text.length * 80));
   }catch(e){ setSpeaking(false); }
 }
 function setSpeaking(on){
-  const p = $('#custPanel');
-  if(on) p.classList.add('speaking'); else p.classList.remove('speaking');
+  const av = $('#cpAvatar');
+  if(!av) return;
+  if(on) av.classList.add('speaking'); else av.classList.remove('speaking');
 }
 
-/* ============================================================
-   AVATAR GENERATOR
-============================================================ */
+/* AVATAR */
 function makeLook(){
-  return {
-    skin: pick(['#f3cba6','#e6b183','#d19a6a','#b57a4a','#8d5a33','#f7dcc2']),
-    hair: pick(['#1c1c1c','#2b1b12','#4a2c17','#6b4a2b','#8a8a8a','#3a2418']),
-    shirt: pick(['#2b5d8a','#3a6b4f','#7a4a6b','#8a5a2b','#4a4a6b','#2b6b6b','#6b2b2b']),
-    bg1: pick(['#1b3a5c','#1d4a3c','#3c2a4a','#4a3a1c']),
-    glasses: Math.random() < .3,
-    beard: Math.random() < .35,
-    female: Math.random() < .45,
-    hairStyle: rnd(0,2)
-  };
+  return { skin: pick(['#f3cba6','#e6b183','#d19a6a','#b57a4a','#8d5a33']), hair: pick(['#1c1c1c','#2b1b12','#4a2c17']), shirt: pick(['#2b5d8a','#3a6b4f','#7a4a6b']), bg1: pick(['#1b3a5c','#1d4a3c','#3c2a4a']), glasses: Math.random()<.3, beard: Math.random()<.35, female: Math.random()<.45 };
 }
-function avatarSVG(look, name){
-  const L = look;
-  const hairTop = L.female
-    ? `<path d="M52 88 Q50 34 100 30 Q150 34 148 88 Q148 60 100 52 Q52 60 52 88 Z" fill="${L.hair}"/>
-       <path d="M50 84 Q40 130 44 168 L62 168 Q56 124 60 92 Z" fill="${L.hair}"/>
-       <path d="M150 84 Q160 130 156 168 L138 168 Q144 124 140 92 Z" fill="${L.hair}"/>`
-    : `<path d="M56 82 Q54 40 100 36 Q146 40 144 82 Q138 62 100 58 Q62 62 56 82 Z" fill="${L.hair}"/>`;
-  const beard = L.beard
-    ? `<path d="M70 118 Q100 160 130 118 Q128 148 100 152 Q72 148 70 118 Z" fill="${L.hair}" opacity=".85"/>`
-    : '';
-  const glasses = L.glasses
-    ? `<g stroke="#111" stroke-width="3" fill="none" opacity=".85">
-         <circle cx="84" cy="96" r="14"/><circle cx="116" cy="96" r="14"/>
-         <line x1="98" y1="96" x2="102" y2="96"/></g>`
-    : '';
-  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <linearGradient id="bg_${name}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="${L.bg1}"/><stop offset="1" stop-color="#0a1119"/>
-      </linearGradient>
-      <radialGradient id="gl_${name}" cx="50%" cy="30%">
-        <stop offset="0" stop-color="#ffffff" stop-opacity=".12"/>
-        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-      </radialGradient>
-    </defs>
-    <rect width="200" height="200" fill="url(#bg_${name})"/>
-    <rect width="200" height="200" fill="url(#gl_${name})"/>
-    <path d="M28 200 Q52 148 100 148 Q148 148 172 200 Z" fill="${L.shirt}"/>
-    <rect x="88" y="126" width="24" height="28" rx="8" fill="${L.skin}" opacity=".85"/>
-    <ellipse cx="100" cy="96" rx="46" ry="54" fill="${L.skin}"/>
-    <ellipse cx="100" cy="96" rx="46" ry="54" fill="#000" opacity=".04"/>
-    ${hairTop}
-    <ellipse class="eye" cx="84" cy="96" rx="5.5" ry="6.5" fill="#20242b"/>
-    <ellipse class="eye" cx="116" cy="96" rx="5.5" ry="6.5" fill="#20242b"/>
-    <circle cx="86" cy="94" r="1.8" fill="#fff" opacity=".9"/>
-    <circle cx="118" cy="94" r="1.8" fill="#fff" opacity=".9"/>
-    <path d="M74 80 Q84 74 94 80" stroke="${L.hair}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
-    <path d="M106 80 Q116 74 126 80" stroke="${L.hair}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
-    <ellipse cx="100" cy="106" rx="4" ry="5" fill="${L.skin}" opacity=".5"/>
-    ${beard}
-    <ellipse class="mouth" cx="100" cy="122" rx="12" ry="4" fill="#7a3540"/>
-    ${glasses}
+function avatarSVG(L, id){
+  const hairTop = L.female ? `<path d="M52 88 Q50 34 100 30 Q150 34 148 88 Q148 60 100 52 Q52 60 52 88 Z" fill="${L.hair}"/>` : `<path d="M56 82 Q54 40 100 36 Q146 40 144 82 Q138 62 100 58 Q62 62 56 82 Z" fill="${L.hair}"/>`;
+  return `<svg viewBox="0 0 200 200"><defs><linearGradient id="bg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${L.bg1}"/><stop offset="1" stop-color="#050a0f"/></linearGradient></defs>
+  <rect width="200" height="200" fill="url(#bg${id})"/>
+  <path d="M28 200 Q52 148 100 148 Q148 148 172 200 Z" fill="${L.shirt}"/>
+  <rect x="88" y="126" width="24" height="28" rx="8" fill="${L.skin}" opacity=".8"/>
+  <ellipse cx="100" cy="96" rx="46" ry="54" fill="${L.skin}"/>
+  ${hairTop}
+  <circle cx="84" cy="96" r="5" fill="#20242b"/><circle cx="116" cy="96" r="5" fill="#20242b"/>
+  <ellipse class="mouth" cx="100" cy="122" rx="12" ry="4" fill="#7a3540" style="transition:ry .1s"/>
+  ${L.glasses?'<circle cx="84" cy="96" r="14" stroke="#111" stroke-width="2" fill="none"/><circle cx="116" cy="96" r="14" stroke="#111" stroke-width="2" fill="none"/>':''}
+  ${L.beard?'<path d="M70 118 Q100 160 130 118 Q128 148 100 152 Q72 148 70 118 Z" fill="'+L.hair+'" opacity=".8"/>':''}
   </svg>`;
 }
 
-/* ============================================================
-   DATA
-============================================================ */
-const FIRST = ['أحمد','ليلى','سمير','رنا','خالد','نور','مازن','سلمى','فادي','هبة','جورج','ريم','بشار','لينا','عمر','دينا','طارق','ميرا','يوسف','غادة','وليد','سارة','إياد','جمانة'];
-const LAST = ['الحلبي','الشامي','القاسم','درويش','العلي','الحموي','الخطيب','الرفاعي','حداد','نجار','صالح','بركات','العبد','سليمان','الزين','الأحمد','المصري','السلطان'];
-
-const PERSONALITIES = [
-  {id:'calm',  name:'هادئ',    desc:'يتكلم بهدوء وبصبر',       pitch:1.00, rate:0.95, patience:1.3},
-  {id:'angry', name:'غاضب',    desc:'متضايق وسريع الانفعال',   pitch:0.82, rate:1.15, patience:0.6},
-  {id:'elder', name:'مسن',     desc:'كبير بالسن، يتكلم ببطء',  pitch:0.80, rate:0.78, patience:1.0},
-  {id:'young', name:'شاب',     desc:'شاب، يتكلم بسرعة',        pitch:1.22, rate:1.15, patience:1.1},
-  {id:'busy',  name:'مستعجل',  desc:'عندو شغل وما عندو وقت',   pitch:1.10, rate:1.25, patience:0.55},
-  {id:'polite',name:'مؤدب',    desc:'لطيف جداً ويشكر كثيراً',  pitch:1.05, rate:1.00, patience:1.4}
-];
-
-const PACKAGES = ['باقة الشباب','باقة العائلة','باقة الأعمال','باقة الإنترنت اللامحدود'];
-
+/* DATA */
 const PROBLEMS = [
-  {
-    id:'recharge', title:'شحن رصيد',
-    data: () => ({ amount: pick([5000,10000,15000,20000,25000,30000,50000]) }),
-    intro: c => `ألو؟ مرحبا، أنا ${c.name}. بدي اشحن رصيدي بمبلغ ${c.data.amount} ليرة، بس ما عندي تطبيق ولا بطاقة. فيك تعمليها إنت؟`,
-    steps:['lookup','recharge'],
-    fix: () => `وصل الرصيد! شكراً كتير، الله يعطيك العافية. خدمة ممتازة صراحة.`
-  },
-  {
-    id:'transfer', title:'تحويل رصيد',
-    data: () => ({ amount: pick([2000,5000,10000,15000,25000]), recipient:'09'+rnd(10000000,99999999) }),
-    intro: c => `مرحبا، معك ${c.name}. بدي حوّل ${c.data.amount} ليرة لرقم ${c.data.recipient}، بس التحويل من تطبيقي ما عم يمشي. بتقدر تعملها من عندك؟`,
-    steps:['lookup','transfer'],
-    fix: () => `وصل التحويل للرقم التاني؟ تمام! شكراً كتير على مساعدتك.`
-  },
-  {
-    id:'slow', title:'الإنترنت بطيء',
-    data: () => ({}),
-    intro: c => `ألو، ${c.name} معك. الإنترنت عندي صار بطيء كتير من الصبح، الصفحات ما عم تفتح. شو القصة؟`,
-    steps:['linecheck','restart'],
-    fix: () => `أيوا! صار يشتغل بسرعة طبيعية. شكراً، إنت أنقذت يومي.`
-  },
-  {
-    id:'nonet', title:'انقطاع الشبكة',
-    data: () => ({}),
-    intro: c => `مرحبا، أنا ${c.name}. من ساعتين ما في شبكة على خطي أبداً، جربت أطفي الجهاز وشغّله وما في فايدة.`,
-    steps:['linecheck','ticket'],
-    fix: () => `طيب، بستنى التذكرة تتحل. مشكور على الأقل عرفت شو المشكلة.`
-  },
-  {
-    id:'package', title:'تغيير باقة',
-    data: () => ({ pkg: pick(PACKAGES) }),
-    intro: c => `مرحبا، أنا ${c.name}. بدي غيّر باقتي لـ${c.data.pkg}، الباقة القديمة ما عادت تناسبني.`,
-    steps:['lookup','package'],
-    fix: () => `شفت الباقة تغيرت! حلو كتير، شكراً إلك.`
-  },
-  {
-    id:'lost', title:'خصم غير مبرر',
-    data: () => ({ amount: pick([3500,7500,12000,18000]) }),
-    intro: c => `ألو، معك ${c.name}. رصيدي ناقص ${c.data.amount} ليرة وأنا ما استعملت شي! بدي أعرف وين راحوا.`,
-    steps:['balance','usage','ticket'],
-    fix: () => `طيب، يعني في خصم نظامي. مشكور على التوضيح، عالأقل ارتحت.`
-  },
-  {
-    id:'susp', title:'الخط موقوف',
-    data: () => ({}),
-    intro: c => `مرحبا، أنا ${c.name}. خطي موقوف فجأة وأنا محتاجه للشغل. ليش موقوف؟`,
-    steps:['lookup','unblock'],
-    fix: () => `الخط رجع يشتغل! الحمد لله، شكراً كتير إلك.`
-  },
-  {
-    id:'bill', title:'فاتورة مرتفعة',
-    data: () => ({ pkg: pick(PACKAGES) }),
-    intro: c => `ألو، ${c.name}. فاتورتي هالشهر طلعت ضعف الشهر الماضي وأنا ما غيرت شي. بدي تفسير.`,
-    steps:['usage','package'],
-    fix: () => `تمام، فهمت. يلا غيرلي الباقة لـ${c.data.pkg} خلص نرتاح.`
-  }
+  { id:'recharge', title:'شحن رصيد', data:()=>({amount:pick([10000,15000,25000])}), steps:['lookup','recharge'], intro:c=>`ألو؟ ${c.name} معك. بدي اشحن رصيدي بـ ${c.data.amount} ليرة.`, fix:()=>`وصل الرصيد! شكراً كتير.` },
+  { id:'transfer', title:'تحويل رصيد', data:()=>({amount:pick([5000,10000]), recipient:'09'+rnd(10000000,99999999)}), steps:['lookup','transfer'], intro:c=>`مرحبا ${c.name}. بدي حوّل ${c.data.amount} ليرة لرقم ${c.data.recipient}.`, fix:()=>`وصل التحويل! الله يعطيك العافية.` },
+  { id:'slow', title:'الإنترنت بطيء', data:()=>({}), steps:['linecheck','restart'], intro:c=>`الإنترنت عندي بطيء كتير، أنا ${c.name}. شو القصة؟`, fix:()=>`أيوا صار يشتغل بسرعة! شكراً.` },
+  { id:'nonet', title:'انقطاع الشبكة', data:()=>({}), steps:['linecheck','ticket'], intro:c=>`مرحبا أنا ${c.name}. من ساعتين ما في شبكة أبداً.`, fix:()=>`طيب بستنى التذكرة تتحل. مشكور.` },
+  { id:'package', title:'تغيير باقة', data:()=>({pkg:pick(['باقة الشباب','باقة العائلة'])}), steps:['lookup','package'], intro:c=>`بدي غيّر باقتي لـ${c.data.pkg}، أنا ${c.name}.`, fix:()=>`شفت الباقة تغيرت! حلو كتير.` }
 ];
-
 const TOOLS = [
-  {id:'lookup',   name:'استعلام عن الرقم', icon:'🔍'},
-  {id:'balance',  name:'فحص الرصيد',       icon:'💰'},
-  {id:'linecheck',name:'فحص حالة الخط',    icon:'📶'},
-  {id:'restart',  name:'إعادة تشغيل الخدمة',icon:'🔄'},
-  {id:'recharge', name:'شحن رصيد',         icon:'💳', fields:[
-      {key:'amount', label:'المبلغ (ل.س)', type:'number', placeholder:'مثال: 10000'}]},
-  {id:'transfer', name:'تحويل رصيد',       icon:'🔁', fields:[
-      {key:'recipient', label:'رقم المستلم', type:'text', placeholder:'09xxxxxxxx'},
-      {key:'amount', label:'المبلغ (ل.س)', type:'number', placeholder:'مثال: 5000'}]},
-  {id:'package',  name:'تغيير الباقة',     icon:'📦', fields:[
-      {key:'pkg', label:'الباقة', type:'select', options:PACKAGES}]},
-  {id:'usage',    name:'سجل الاستخدام',    icon:'📊'},
-  {id:'ticket',   name:'فتح تذكرة فنية',   icon:'🎫', fields:[
-      {key:'issue', label:'وصف المشكلة', type:'text', placeholder:'وصف مختصر...'}]},
-  {id:'unblock',  name:'فك الحظر',         icon:'🔓'}
+  {id:'lookup', name:'استعلام رقم', icon:'🔍'}, {id:'linecheck',name:'فحص الخط', icon:'📶'},
+  {id:'recharge', name:'شحن رصيد', icon:'💳', fields:[{key:'amount',label:'المبلغ',type:'number'}]},
+  {id:'transfer', name:'تحويل رصيد', icon:'🔁', fields:[{key:'recipient',label:'الرقم',type:'text'},{key:'amount',label:'المبلغ',type:'number'}]},
+  {id:'package', name:'تغيير الباقة', icon:'📦', fields:[{key:'pkg',label:'الباقة',type:'text'}]},
+  {id:'ticket', name:'فتح تذكرة', icon:'🎫'}, {id:'restart', name:'إعادة تشغيل', icon:'🔄'}
 ];
 
-const TOOL_REACTIONS = {
-  lookup:   ['لحظة... أيوا، شفت الملف؟','تمام، شو طلع معك؟','إيه، ظهر عندك شي؟'],
-  balance:  ['شو رصيدي؟ خبرني.','أيوا، وكم باقي؟','طيب شو بيّن الرصيد؟'],
-  linecheck:['شو حالة الخط؟ في شي غلط؟','طيب شو بيّن معك؟','إيه، الخط سليم؟'],
-  restart:  ['عملت إعادة تشغيل؟ خليني جرب...','إعادة تشغيل؟ طيب جربت.'],
-  recharge: ['وصلت الرسالة! عظيم.','شكراً، شفت الرصيد زاد.'],
-  transfer: ['وصل التحويل للرقم التاني؟ تمام.','الله يعطيك العافية، وصل.'],
-  package:  ['تغيرت الباقة؟ حلو كتير.','تمام، شفت الباقة الجديدة.'],
-  usage:    ['شو بيّن بسجل الاستخدام؟','طيب وين راحوا المصاري؟'],
-  ticket:   ['فتحتولي تذكرة؟ قديش بدها وقت؟','تمام، ورقم التذكرة؟'],
-  unblock:  ['الخط رجع يشتغل؟! شكراً.','الحمد لله، صار في شبكة.']
-};
-
-const EMPATHY_WORDS = ['اتفهم','بتفهم','أتفهم','معك حق','آسف','اسف','بعرف','مؤسف','اعتذر','أعتذر','ولا يهمك','أكيد محق'];
-const THANKS_WORDS = ['شكرا','شكراً','مشكور','يعطيك العافية','تسلم'];
-
-/* ============================================================
-   CUSTOMER CREATION
-============================================================ */
-function newCustomer(){
-  const p = pick(PROBLEMS);
-  const pers = pick(PERSONALITIES);
-  const c = {
-    name: pick(FIRST) + ' ' + pick(LAST),
-    personality: pers,
-    look: makeLook(),
-    msisdn: '09' + rnd(10000000, 99999999),
-    problem: p,
-    done: [],
-    revealed: { msisdn:false },
-    fixed: false,
-    data: {},
-    intro: ''
-  };
-  c.data = p.data();
-  c.intro = p.intro(c);
-  c.avatar = avatarSVG(c.look, 'av' + Math.random().toString(36).slice(2,7));
-  return c;
-}
-
-/* ============================================================
-   UI: CHAT
-============================================================ */
+/* LOGIC */
 const chatEl = $('#chat');
 function addMsg(role, text){
-  const d = document.createElement('div');
-  d.className = 'msg ' + role;
-  d.textContent = text;
-  chatEl.appendChild(d);
-  chatEl.scrollTop = chatEl.scrollHeight;
-  return d;
+  const d = document.createElement('div'); d.className = 'msg ' + role; d.textContent = text;
+  chatEl.appendChild(d); chatEl.scrollTop = chatEl.scrollHeight;
 }
-function addTyping(){
-  const d = document.createElement('div');
-  d.className = 'msg customer typing';
-  d.textContent = 'الزبون يكتب...';
-  chatEl.appendChild(d);
-  chatEl.scrollTop = chatEl.scrollHeight;
-  return d;
-}
-function toast(t){
-  const el = $('#toast');
-  el.textContent = t;
-  el.classList.add('on');
-  clearTimeout(el._t);
-  el._t = setTimeout(()=>el.classList.remove('on'), 2600);
-}
-
-/* ============================================================
-   SATISFACTION
-============================================================ */
+function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); setTimeout(()=>el.classList.remove('on'), 3000); }
 function changeSat(d){
   state.sat = clamp(state.sat + d, 0, 100);
-  const bar = $('#cpSat');
-  bar.style.width = state.sat + '%';
-  const mood = state.sat >= 75 ? '😊 راضي' : state.sat >= 50 ? '😐 محايد' : state.sat >= 28 ? '😠 متضايق' : '🤬 غاضب جداً';
-  $('#cpMood').textContent = mood;
-  if(state.sat < 15 && state.phase === 'active'){
-    setTimeout(()=>{ toast('الزبون أغلق الخط! 😤'); endCall(true); }, 900);
-  }
+  $('#cpSat').style.width = state.sat + '%';
+  $('#cpMood').textContent = state.sat>=70?'😊 راضي':state.sat>=40?'😐 محايد':'😠 متضايق';
 }
-
-/* ============================================================
-   RENDER TOOLS
-============================================================ */
 function renderTools(){
-  const wrap = $('#tools');
-  wrap.innerHTML = '';
+  const wrap = $('#tools'); wrap.innerHTML = '';
   TOOLS.forEach(t => {
-    const b = document.createElement('button');
-    b.className = 'tool';
-    b.dataset.id = t.id;
-    b.innerHTML = `<span class="ico">${t.icon}</span><span>${t.name}</span>`;
-    b.onclick = () => onToolClick(t, b);
-    b.disabled = state.phase !== 'active';
-    wrap.appendChild(b);
+    const b = document.createElement('button'); b.className = 'tool'; b.dataset.id = t.id;
+    b.innerHTML = `<span>${t.icon}</span><span>${t.name}</span>`;
+    b.onclick = () => onToolClick(t); wrap.appendChild(b);
   });
 }
 function refreshToolStates(){
-  const c = state.customer;
   document.querySelectorAll('.tool').forEach(b => {
-    const id = b.dataset.id;
-    b.disabled = state.phase !== 'active';
-    b.classList.toggle('done', !!(c && c.done.includes(id)));
+    b.disabled = state.phase !== 'active' || !state.customer?.revealed;
+    b.classList.toggle('done', !!(state.customer && state.customer.done.includes(b.dataset.id)));
   });
-  if(c){
-    $('#toolCount').textContent = c.done.length + '/' + c.problem.steps.length;
-  } else {
-    $('#toolCount').textContent = '0/0';
-  }
+  if(state.customer) $('#toolCount').textContent = `${state.customer.done.length}/${state.customer.problem.steps.length}`;
 }
 
-/* ============================================================
-   TOOL EXECUTION
-============================================================ */
 function onToolClick(tool){
-  if(state.phase !== 'active' || !state.customer) return;
-  clickSound();
-  const c = state.customer;
-
-  if(!c.revealed.msisdn){
-    toast('لازم تسأل الزبون عن رقمه أولاً 📞');
-    errorSound();
-    return;
-  }
-
-  if(tool.fields){
-    openModal(tool.name, tool.fields, vals => runTool(tool, vals));
-  } else {
-    runTool(tool, {});
-  }
+  if(state.phase !== 'active' || !state.customer || !state.customer.revealed) return toast('سأل الزبون عن رقمه أولاً!');
+  if(tool.fields) openModal(tool.name, tool.fields, vals => runTool(tool, vals));
+  else runTool(tool, {});
 }
-
 function runTool(tool, params){
   const c = state.customer;
-  if(!c || state.phase !== 'active') return;
+  if(!c.problem.steps.includes(tool.id)) { changeSat(-5); addMsg('sys', '❌ إجراء غير مفيد'); return; }
+  if(c.done.includes(tool.id)) return toast('منفذ مسبقاً');
+  
+  if(tool.id==='recharge' && Number(params.amount)!==c.data.amount) return toast('المبلغ خطأ!');
+  if(tool.id==='transfer' && params.recipient!==c.data.recipient) return toast('الرقم خطأ!');
+  if(tool.id==='package' && params.pkg!==c.data.pkg) return toast('الباقة خطأ!');
 
-  const inSolution = c.problem.steps.includes(tool.id);
-
-  if(!inSolution){
-    changeSat(-5);
-    addMsg('sys', `تم تنفيذ «${tool.name}» — لا علاقة له بمشكلة الزبون`);
-    const react = pick(['ليش عم تعمل هالشي؟ ما هاد مشكلتي!','معليش، بس أنا ما جيت منشان هالموضوع.','إيه... وهلق شو بالنسبة لمشكلتي؟']);
-    customerSay(react, -0);
-    errorSound();
-    return;
-  }
-
-  if(c.done.includes(tool.id)){
-    toast('هذا الإجراء منفّذ مسبقاً');
-    return;
-  }
-
-  // validate params
-  let paramOk = true;
-  let detail = '';
-  if(tool.id === 'recharge'){
-    const amt = Number(params.amount);
-    if(amt !== c.data.amount){ paramOk = false; detail = `المبلغ غير مطابق (المطلوب ${c.data.amount})`; }
-    else detail = amt + ' ل.س';
-  }
-  if(tool.id === 'transfer'){
-    const r = (params.recipient || '').replace(/\s/g,'');
-    const amt = Number(params.amount);
-    if(r !== c.data.recipient){ paramOk = false; detail = 'رقم المستلم غير صحيح'; }
-    else if(amt !== c.data.amount){ paramOk = false; detail = 'المبلغ غير مطابق'; }
-    else detail = amt + ' ل.س إلى ' + r;
-  }
-  if(tool.id === 'package'){
-    if(params.pkg !== c.data.pkg){ paramOk = false; detail = 'الباقة غير مطابقة'; }
-    else detail = params.pkg;
-  }
-  if(tool.id === 'ticket') detail = params.issue || 'مشكلة فنية';
-
-  if(!paramOk){
-    changeSat(-8);
-    addMsg('sys', `⚠️ فشل «${tool.name}» — ${detail}`);
-    customerSay(pick(['شو؟ هاد مو اللي طلبته!','لا لا، إنت غلطت بالتفاصيل.','معليش، بس هيك ما رح تنحل المشكلة.']), -0);
-    errorSound();
-    return;
-  }
-
-  // success
-  c.done.push(tool.id);
-  changeSat(+10);
-  successSound();
-  addMsg('sys', `✅ «${tool.name}»${detail ? ' — ' + detail : ''} — تم بنجاح`);
+  c.done.push(tool.id); changeSat(15); successSound(); addMsg('sys', `✅ تم تنفيذ: ${tool.name}`);
   refreshToolStates();
-
-  const reacts = TOOL_REACTIONS[tool.id] || ['تمام...'];
-  customerSay(pick(reacts), -0, true);
-
-  // check fixed
-  if(!c.fixed && c.problem.steps.every(s => c.done.includes(s))){
-    c.fixed = true;
-    changeSat(+25);
-    setTimeout(()=>{
-      addMsg('sys', '🎉 تم حل مشكلة الزبون بالكامل');
-      customerSay(c.problem.fix(), 0, false, true);
-      successSound();
-    }, 1100);
+  
+  if(c.problem.steps.every(s=>c.done.includes(s))) {
+    setTimeout(()=>{ addMsg('sys', '🎉 تم الحل!'); addMsg('customer', c.problem.fix()); speak(c.problem.fix()); changeSat(20); }, 1000);
+  } else {
+    addMsg('customer', 'طيب... وبعدين؟'); speak('طيب... وبعدين؟');
   }
 }
 
-/* ============================================================
-   CUSTOMER SAYS (auto lines with TTS)
-============================================================ */
-function customerSay(text, satDelta = 0, short = false, final = false){
-  const c = state.customer;
-  if(!c) return;
-  addMsg('customer', text);
-  state.history.push({role:'customer', text});
-  if(satDelta) changeSat(satDelta);
-  const p = c.personality;
-  const rate = short ? p.rate * 1.05 : p.rate;
-  speak(text, p.pitch, rate);
-  if(final) refreshToolStates();
-}
-
-/* ============================================================
-   MODAL
-============================================================ */
-function openModal(title, fields, onSubmit){
+function openModal(title, fields, cb){
   $('#modalTitle').textContent = title;
-  const body = $('#modalBody');
-  body.innerHTML = '';
+  const body = $('#modalBody'); body.innerHTML = '';
   const inputs = {};
   fields.forEach(f => {
-    const lbl = document.createElement('label');
-    lbl.className = 'fld';
-    const sp = document.createElement('span');
-    sp.textContent = f.label;
-    lbl.appendChild(sp);
-    let el;
-    if(f.type === 'select'){
-      el = document.createElement('select');
-      f.options.forEach(o => {
-        const op = document.createElement('option');
-        op.value = o; op.textContent = o;
-        el.appendChild(op);
-      });
-    } else {
-      el = document.createElement('input');
-      el.type = f.type || 'text';
-      el.placeholder = f.placeholder || '';
-    }
-    lbl.appendChild(el);
-    body.appendChild(lbl);
-    inputs[f.key] = el;
+    const l = document.createElement('label'); l.className = 'fld';
+    l.innerHTML = `<span>${f.label}</span>`;
+    const i = document.createElement('input'); i.type = f.type || 'text'; l.appendChild(i); body.appendChild(l); inputs[f.key] = i;
   });
-  $('#modalOk').onclick = () => {
-    const vals = {};
-    Object.keys(inputs).forEach(k => vals[k] = inputs[k].value.trim());
-    closeModal();
-    onSubmit(vals);
-  };
+  $('#modalOk').onclick = () => { cb(Object.fromEntries(Object.entries(inputs).map(([k,v])=>[k,v.value.trim()]))); closeModal(); };
   $('#modalCancel').onclick = closeModal;
   $('#modal').classList.add('show');
-  const first = body.querySelector('input,select');
-  if(first) setTimeout(()=>first.focus(), 60);
 }
 function closeModal(){ $('#modal').classList.remove('show'); }
 
-/* ============================================================
-   AI TURN (Gemini)
-============================================================ */
-async function aiTurn(){
+/* AI / LOCAL TURN */
+async function aiTurn(text){
+  if(!state.apiKey) return null;
   const c = state.customer;
-  const actionsList = c.done.length
-    ? c.done.map(id => (TOOLS.find(t => t.id === id) || {}).name).join('، ')
-    : 'لا شيء حتى الآن';
-
-  const transcript = state.history.slice(-14)
-    .map(h => (h.role === 'agent' ? 'الموظف: ' : 'الزبون: ') + h.text)
-    .join('\n') || '(لم يبدأ الحوار بعد)';
-
-  const prompt = [
-    'أنت تلعب دور زبون في مركز خدمة عملاء شركة سيريتل للاتصالات في سوريا. أنت إنسان حقيقي ولست ذكاءً اصطناعياً.',
-    'اسمك: ' + c.name,
-    'شخصيتك: ' + c.personality.name + ' — ' + c.personality.desc,
-    'مشكلتك: ' + c.problem.title,
-    'تفاصيل مشكلتك: ' + c.intro,
-    'رقم هاتفك: ' + c.msisdn + ' — لا تعطِ الرقم أبداً إلا إذا سألك الموظف عن رقمك صراحةً.',
-    'مستوى رضاك الحالي: ' + Math.round(state.sat) + ' من 100.',
-    'الإجراءات التي نفذها الموظف على النظام: ' + actionsList,
-    'سجل المحادثة حتى الآن:',
-    transcript,
-    '',
-    'قواعد صارمة:',
-    '1) تكلم باللهجة السورية العامية، من جملة إلى ثلاث جمل قصيرة، طبيعي جداً وبسيط.',
-    '2) لا تكرر أي جملة قلتها سابقاً في هذه المحادثة. نوّع بالكلمات.',
-    '3) لا تعطِ رقمك إلا إذا سأل الموظف عن الرقم صراحة (كلمة رقم/نمرة).',
-    '4) إذا نفذ الموظف إجراءً مفيداً اشكره وتفاعل معه. إذا لم ينفذ شيئاً مفيداً، زد نفاد صبرك تدريجياً حسب مستوى رضاك.',
-    '5) لا تخرج عن الشخصية أبداً ولا تذكر أنك ذكاء اصطناعي أو نموذج لغوي.',
-    '6) إذا حُلّت مشكلتك بالكامل، عبّر عن ارتياحك الكبير واشكره.',
-    '7) satisfactionDelta رقم بين -12 و +8 حسب ما قاله الموظف.',
-    '',
-    'أعد الرد بصيغة JSON فقط دون أي نص إضافي أو علامات كود:',
-    '{"reply":"ردك بالعامية","satisfactionDelta":0,"revealedMsisdn":false,"resolved":false}'
-  ].join('\n');
-
-  try{
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + encodeURIComponent(state.apiKey),
-      {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          contents:[{ role:'user', parts:[{ text: prompt }] }],
-          generationConfig:{ temperature:0.95, maxOutputTokens:320, responseMimeType:'application/json' }
-        })
-      }
-    );
-    if(!res.ok) throw new Error('HTTP ' + res.status);
+  const prompt = `أنت زبون سوري اسمك ${c.name}. مشكلتك: ${c.problem.title}. التفاصيل: ${c.intro}. رصاك: ${state.sat}. 
+  الموظف قال: "${text}". 
+  إذا سألك عن رقمك، أعطه: ${c.msisdn}.
+  أعد الرد بصيغة JSON: {"reply":"كلامك بالعامية", "delta":0} (delta من -10 لـ 10).`;
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`, {
+      method:'POST', body: JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}], generationConfig:{responseMimeType:"application/json"}})
+    });
     const data = await res.json();
-    const txt = (data.candidates && data.candidates[0] && data.candidates[0].content &&
-                 data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || '';
-    const clean = txt.replace(/```json/gi,'').replace(/```/g,'').trim();
-    const obj = JSON.parse(clean);
-    if(typeof obj.reply !== 'string' || !obj.reply.trim()) throw new Error('bad reply');
-    if(obj.revealedMsisdn === true) c.revealed.msisdn = true;
-    const d = Number(obj.satisfactionDelta);
-    if(!isNaN(d)) changeSat(clamp(d, -12, 8));
-    return obj.reply.trim();
-  }catch(err){
-    console.warn('AI error:', err);
-    if(!state.warnedAI){
-      state.warnedAI = true;
-      toast('تعذر الاتصال بالذكاء الاصطناعي — تحويل للنمط المحلي');
-    }
-    return null;
-  }
+    const obj = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g,''));
+    changeSat(obj.delta || 0);
+    if(text.includes('رقم') || text.includes('نمرة')) c.revealed = true;
+    return obj.reply;
+  } catch(e){ return null; }
 }
-
-/* ============================================================
-   LOCAL ENGINE (fallback)
-============================================================ */
-let lastLocal = '';
 function localTurn(text){
   const c = state.customer;
-  const t = text.replace(/[إأآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase();
-  const has = (...ks) => ks.some(k => t.includes(k));
-
-  // ---- ask for number
-  if(!c.revealed.msisdn && (has('رقم','نمره','نمرتك','رقمك'))){
-    c.revealed.msisdn = true;
-    changeSat(+2);
-    return pick([
-      'أكيد، رقمي هو ' + c.msisdn + '.',
-      c.msisdn + ' — هاد رقمي، خذه.',
-      'رقمي ' + c.msisdn + '، كتبه عندك.',
-      'إيه، ' + c.msisdn + '.'
-    ]);
-  }
-
-  // ---- if fixed already
-  if(c.fixed){
-    return pick([
-      'إيه شكراً، المشكلة انحلت. الله يعطيك العافية.',
-      'تمام كتير، ما قصرت معي.',
-      'شكراً إلك، خدمة ممتازة.'
-    ]);
-  }
-
-  // ---- empathy
-  if(has(...EMPATHY_WORDS)){
-    changeSat(+3);
-    return pick([
-      'الله يخليك، عالأقل في حدا عم يسمعني.',
-      'شكراً لتفهمك، هاد بيعني كتير.',
-      'طيب، منشان هيك بحكي معك.',
-      'إيه والله، تعبت من هالمشكلة.'
-    ]);
-  }
-
-  // ---- asking for details
-  if(has('مبلغ','قديش','كم','المبلغ') && c.problem.id === 'recharge'){
-    return 'المبلغ ' + c.data.amount + ' ليرة، بس هيك.';
-  }
-  if(has('لمين','المستلم','رقم التحويل') && c.problem.id === 'transfer'){
-    return 'الرقم هو ' + c.data.recipient + '، بدي حوّله هالمبلغ.';
-  }
-  if(has('باقه','باقة') && c.problem.id === 'package'){
-    return 'بدي ' + c.data.pkg + '، هاد اللي طلبته.';
-  }
-
-  // ---- stalling / no action
-  const progress = c.done.length;
-  if(progress === 0){
-    state.stall++;
-    if(state.stall > 2){
-      changeSat(-3);
-      return pick([
-        'شو صار؟ أنا عم استنى من زمان!',
-        'حبيبي أنا عندي شغل، فيك تعمل شي مفيد؟',
-        'له له، لهلق ما عملت شي! شو القصة؟',
-        'هلق أنا بحكي معك من عشر دقايق وما في نتيجة.'
-      ]);
-    }
-    return pick([
-      'طيب... شو رح تعمل بالنسبة لمشكلتي؟',
-      'إيه وبعدين؟ شو الخطوة التانية؟',
-      'طيب فهمت، بس بدي حل.',
-      'أنا سامعك، بس بدي أشوف نتيجة.'
-    ]);
-  }
-
-  // ---- generic
-  return pick([
-    'طيب، شو باقي؟',
-    'إيه... كمّل.',
-    'فهمت عليك، بس أنا لسا مستعجل.',
-    'إن شاء الله تنحل بسرعة.',
-    'طيب، شو رح تعمل هلق؟',
-    'الله يستر، بدي أشوف نتيجة.'
-  ]);
+  if(!c.revealed && (text.includes('رقم')||text.includes('نمرة'))) { c.revealed = true; return `رقمي هو ${c.msisdn}`; }
+  if(c.done.length > 0) return pick(['تمام، شو الخطوة التانية؟','طيب، وبعدين؟','إن شاء الله تنحل.']);
+  return pick(['شو رح تعمل؟','طيب أنا مستعجل.','فهمت، بس بدي حل.']);
 }
 
-/* ============================================================
-   SEND MESSAGE
-============================================================ */
 async function sendMessage(){
-  const input = $('#msg');
-  const text = input.value.trim();
-  if(!text || state.phase !== 'active' || !state.customer) return;
-  input.value = '';
-  clickSound();
-
-  addMsg('agent', text);
-  state.history.push({ role:'agent', text });
-
-  const typing = addTyping();
-  let reply = null;
-  if(state.apiKey){
-    reply = await aiTurn();
-  }
-  if(!reply){
-    await sleep(420 + Math.random() * 420);
-    reply = localTurn(text);
-  } else {
-    await sleep(200);
-  }
+  const input = $('#msg'); const txt = input.value.trim();
+  if(!txt || state.phase !== 'active') return; input.value = '';
+  addMsg('agent', txt); clickSound();
+  const typing = document.createElement('div'); typing.className='msg customer typing'; typing.textContent='يكتب...'; chatEl.appendChild(typing); chatEl.scrollTop=chatEl.scrollHeight;
+  
+  let reply = await aiTurn(txt);
+  if(!reply) { await sleep(600); reply = localTurn(txt); }
   typing.remove();
-
-  // avoid exact repetition
-  if(reply === lastLocal){
-    reply = reply + ' ' + pick(['والله.','يعني.','شو رأيك؟','بصراحة.']);
-  }
-  lastLocal = reply;
-
-  addMsg('customer', reply);
-  state.history.push({ role:'customer', text: reply });
-  const p = state.customer.personality;
-  speak(reply, p.pitch, p.rate);
+  addMsg('customer', reply); speak(reply);
+  refreshToolStates();
 }
 
-/* ============================================================
-   CALL FLOW
-============================================================ */
+/* CALL FLOW */
 function startCall(){
   if(state.phase !== 'idle') return;
-  state.customer = newCustomer();
-  state.history = [];
-  state.sat = 60 + rnd(-8, 8);
-  state.stall = 0;
-  lastLocal = '';
-  state.phase = 'ringing';
-
-  const c = state.customer;
-  $('#phoneLcd').textContent = 'مكالمة واردة...';
+  state.customer = { name: pick(['أحمد','ليلى','سمير','رنا','خالد','نور'])+' '+pick(['الحلبي','الشامي','درويش']), msisdn:'09'+rnd(10000000,99999999), done:[], revealed:false, look:makeLook(), problem:pick(PROBLEMS) };
+  state.customer.data = state.customer.problem.data();
+  state.customer.intro = state.customer.problem.intro(state.customer);
+  state.customer.avatar = avatarSVG(state.customer.look, 'av'+rnd(1,999));
+  
+  state.phase = 'ringing'; state.sat = 60;
+  $('#phoneLcd').textContent = 'مكالمة واردة';
   $('#phoneBody').classList.add('ringing');
   $('#ringGlow').classList.add('on');
   $('#answerBtn').disabled = false;
-  $('#answerBtn').textContent = 'رد';
-  $('#answerBtn').className = 'phone-btn answer';
-  $('#csName').textContent = 'مكالمة واردة';
-  $('#csSub').textContent = 'اضغط «رد» على الهاتف';
   startRing();
 }
 
-async function answerCall(){
+function answerCall(){
   if(state.phase !== 'ringing') return;
-  stopRing();
-  clickSound();
-  successSound();
-  state.phase = 'active';
-  const c = state.customer;
-
-  $('#phoneBody').classList.remove('ringing');
-  $('#ringGlow').classList.remove('on');
-  $('#phoneLcd').textContent = 'مكالمة جارية';
-  $('#answerBtn').disabled = true;
-  $('#answerBtn').textContent = '—';
-
-  // customer panel
-  $('#cpAvatar').innerHTML = c.avatar;
-  $('#cpName').textContent = c.name;
-  $('#cpTag').textContent = '📞 ' + (c.revealed.msisdn ? c.msisdn : '— — —');
-  $('#custPanel').classList.add('show');
-  changeSat(0);
-
-  $('#csName').textContent = c.name;
-  $('#csSub').textContent = c.personality.name + ' • ' + c.problem.title;
-
-  chatEl.innerHTML = '';
-  addMsg('sys', '📞 بدأت المكالمة — ' + c.name + ' • ' + c.problem.title);
-  await sleep(500);
-
-  addMsg('customer', c.intro);
-  state.history.push({ role:'customer', text: c.intro });
-  speak(c.intro, c.personality.pitch, c.personality.rate);
-
-  refreshToolStates();
-  $('#msg').focus();
+  stopRing(); state.phase = 'active'; const c = state.customer;
+  $('#phoneBody').classList.remove('ringing'); $('#ringGlow').classList.remove('on');
+  $('#answerBtn').disabled = true; $('#phoneLcd').textContent = 'جاري...';
+  
+  $('#cpAvatar').innerHTML = c.avatar; $('#cpName').textContent = c.name; $('#cpTag').textContent = 'رقم: مخفي';
+  $('#custPanel').style.opacity = 1; changeSat(0); refreshToolStates();
+  chatEl.innerHTML = ''; addMsg('sys', 'بدأت المكالمة'); 
+  setTimeout(()=>{ addMsg('customer', c.intro); speak(c.intro, 0.9, 1); }, 500);
+  
+  $('#msg').disabled = false; $('#send').disabled = false; $('#endBtn').disabled = false;
 }
 
-function endCall(autoHangup){
-  if(state.phase !== 'active' && state.phase !== 'ringing') return;
-  stopRing();
-  try{ speechSynthesis.cancel(); }catch(e){}
-  setSpeaking(false);
-
-  const wasActive = state.phase === 'active';
-  state.phase = 'ended';
-
-  const c = state.customer;
-  $('#phoneBody').classList.remove('ringing');
-  $('#ringGlow').classList.remove('on');
-  $('#phoneLcd').textContent = autoHangup ? 'الزبون أغلق' : 'انتهت المكالمة';
-  $('#answerBtn').disabled = true;
-  $('#answerBtn').textContent = 'رد';
-  $('#answerBtn').className = 'phone-btn answer';
-  $('#custPanel').classList.remove('show');
-  refreshToolStates();
-
-  if(!wasActive){ state.phase = 'idle'; setTimeout(startCall, 1800); return; }
-
-  // score
-  state.stats.calls++;
-  let gained = 0;
-  if(c.fixed){
-    state.stats.fixed++;
-    gained = Math.round(state.sat * 1.2) + 40;
-  } else {
-    gained = Math.round(state.sat * 0.3);
+function endCall(auto=false){
+  stopRing(); state.phase = 'ended';
+  $('#phoneBody').classList.remove('ringing'); $('#ringGlow').classList.remove('on');
+  $('#answerBtn').disabled = true; $('#phoneLcd').textContent = 'انتهت';
+  $('#custPanel').style.opacity = 0; $('#msg').disabled = true; $('#send').disabled = true; $('#endBtn').disabled = true;
+  
+  if(!auto){
+    const fixed = state.customer.done.length === state.customer.problem.steps.length;
+    $('#resTitle').textContent = fixed ? '🎉 تم الحل!' : '📴 انتهت المكالمة';
+    $('#resScore').textContent = fixed ? '+100' : '+10';
+    $('#resText').textContent = fixed ? 'الزبون راضي جداً.' : 'لم تحل المشكلة بالكامل.';
+    $('#result').classList.add('show');
   }
-  state.stats.score += gained;
-
-  $('#resTitle').textContent = c.fixed ? '🎉 تم حل المشكلة!' : (autoHangup ? '😤 الزبون أغلق الخط' : '📴 لم تُحل المشكلة');
-  $('#resScore').textContent = '+' + gained;
-  $('#resText').innerHTML =
-    'الزبون: <b>' + c.name + '</b><br>' +
-    'المشكلة: <b>' + c.problem.title + '</b><br>' +
-    'الرضا النهائي: <b>' + Math.round(state.sat) + '%</b><br>' +
-    'الخطوات المنجزة: <b>' + c.done.length + ' / ' + c.problem.steps.length + '</b><br><br>' +
-    'المجموع الكلي: <b>' + state.stats.score + '</b> نقطة • ' +
-    'مكالمات: <b>' + state.stats.calls + '</b> • ' +
-    'محلولة: <b>' + state.stats.fixed + '</b>';
-  $('#result').classList.add('show');
 }
 
-/* ============================================================
-   QUICK CHIPS
-============================================================ */
-const QUICK = [
-  'مرحباً، معك خدمة عملاء سيريتل. كيف بقدر ساعدك؟',
-  'ممكن رقمك من فضلك؟',
-  'أتفهم شعورك، وأنا آسف لهيدا الوضع.',
-  'تمام، رح نعالج الموضوع حالاً.',
-  'لحظة من فضلك، عم شوف حسابك.',
-  'هل في شي تاني بقدر ساعدك فيه؟'
-];
-function renderQuick(){
-  const q = $('#quick');
-  q.innerHTML = '';
-  QUICK.forEach(txt => {
-    const b = document.createElement('button');
-    b.className = 'chip';
-    b.textContent = txt;
-    b.onclick = () => {
-      if(state.phase !== 'active') return;
-      $('#msg').value = txt;
-      $('#msg').focus();
-    };
-    q.appendChild(b);
-  });
-}
-
-/* ============================================================
-   CLOCK
-============================================================ */
-setInterval(()=>{
-  const d = new Date();
-  $('#clock').textContent =
-    String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
-}, 1000);
-
-/* ============================================================
-   INIT / START
-============================================================ */
-function initGame(){
-  const key = $('#apiKeyInput').value.trim();
-  state.apiKey = key || null;
-  if(key) { try{ localStorage.setItem('syriatel_key', key); }catch(e){} }
-  $('#startScreen').style.display = 'none';
+/* INIT */
+$('#startBtn').onclick = () => {
   try{ actx(); }catch(e){}
-  renderTools();
-  renderQuick();
-  refreshToolStates();
-  addMsg('sys', 'نظام CRM جاهز — بانتظار المكالمات...');
-  setTimeout(startCall, 2200);
-}
+  state.apiKey = $('#apiKeyInput').value.trim() || null;
+  $('#startScreen').style.opacity = 0;
+  setTimeout(()=>$('#startScreen').style.display = 'none', 1000);
+  $('#stage').classList.add('zoomed');
+  
+  setTimeout(()=>{ 
+    addMsg('sys', 'نظام جاهز... في انتظار المكالمات');
+    // مكالمة عشوائية بعد 2-5 ثواني
+    setTimeout(startCall, rnd(2000,5000)); 
+  }, 1500);
+};
 
-$('#startBtn').onclick = initGame;
-$('#answerBtn').onclick = () => { if(state.phase === 'ringing') answerCall(); };
+$('#answerBtn').onclick = answerCall;
 $('#send').onclick = sendMessage;
 $('#endBtn').onclick = () => endCall(false);
 $('#msg').addEventListener('keydown', e => { if(e.key === 'Enter') sendMessage(); });
 $('#resBtn').onclick = () => {
-  $('#result').classList.remove('show');
-  state.phase = 'idle';
-  state.customer = null;
-  chatEl.innerHTML = '';
-  addMsg('sys', 'في انتظار المكالمة التالية...');
-  setTimeout(startCall, 1600);
+  $('#result').classList.remove('show'); state.phase = 'idle';
+  chatEl.innerHTML = '<div class="msg sys">في انتظار المكالمة التالية...</div>';
+  // مكالمة جديدة عشوائية بعد 1-2 دقيقة (للواقعية)
+  setTimeout(startCall, rnd(45000, 90000)); 
 };
 
-// restore key
-try{
-  const saved = localStorage.getItem('syriatel_key');
-  if(saved) $('#apiKeyInput').value = saved;
-}catch(e){}
-
-// initial render
+function clickSound(){ beep(1200,.03,'square',.03); }
+setInterval(()=>{ const d=new Date(); $('#clock').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }, 1000);
 renderTools();
-renderQuick();
-changeSat(0);
 </script>
 </body>
 </html>
