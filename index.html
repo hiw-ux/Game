@@ -6,555 +6,662 @@
 <title>سيريتل — مركز خدمة العملاء</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:#020408;font-family:'Cairo',system-ui,sans-serif;color:#e8eefb;user-select:none}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Cairo', sans-serif; }
+body { height: 100vh; overflow: hidden; background: #090e14; color: #e8eefb; user-select: none; }
 
-/* ================= SCENE & CAMERA ================= */
-#viewport{position:fixed;inset:0;display:grid;place-items:center;perspective:1500px}
-#stage{width:1280px;height:800px;position:relative;transform-origin:center center;transition:transform 1.5s cubic-bezier(0.7, 0, 0.2, 1), filter 1.5s ease}
-#stage.zoomed{transform:scale(1.08) translateY(-10px);filter:blur(0px)}
+/* شاشة المكتب الأساسية */
+#office { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at center, #1a2b3d, #05080d); transition: filter 1s ease, opacity 1s ease; }
+#office.blurred { filter: blur(8px) brightness(0.5); pointer-events: none; }
 
-.room{position:absolute;inset:0;overflow:hidden;background:#080c12;transform:preserve-3d}
-.wall{position:absolute;inset:0 0 300px 0;
-  background:radial-gradient(800px 500px at 50% -20%,#1e2c40 0%,#111722 60%,#06090e 100%);
-  border-bottom:1px solid #2a3a50; box-shadow: inset 0 20px 60px rgba(0,0,0,0.8);}
-.wall::after{content:'';position:absolute;inset:0;opacity:.4;
-  background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 2px,transparent 2px 150px);}
-.floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(#0a1017,#020408)}
-.desk-top{position:absolute;left:20px;right:20px;top:500px;height:160px;
-  background:linear-gradient(#5c4033,#3b2a1d);clip-path:polygon(2% 0,98% 0,100% 100%,0 100%);
-  box-shadow:0 -10px 40px rgba(0,0,0,.8), inset 0 3px 0 rgba(255,220,180,.15), inset 0 -20px 40px rgba(0,0,0,0.5);
-  transform:rotateX(15deg); transform-origin:bottom;}
-.desk-front{position:absolute;left:0;right:0;top:630px;height:170px;
-  background:linear-gradient(#2b1f16,#0a0704);box-shadow:inset 0 10px 30px rgba(0,0,0,.8)}
+.desk-layout { position: relative; width: 1200px; height: 700px; max-width: 95vw; max-height: 90vh; display: flex; justify-content: space-between; align-items: flex-end; padding: 40px; perspective: 1000px; }
 
-/* ================= MONITOR ================= */
-.monitor{position:absolute;left:290px;top:40px;width:680px;height:480px;z-index:5;
-  transform:perspective(1200px) rotateY(-4deg) rotateX(2deg);}
-.monitor-bezel{position:absolute;inset:0;border-radius:16px;padding:14px 14px 30px;
-  background:linear-gradient(160deg,#2b3545,#0f141c 60%,#080c12);
-  box-shadow:0 40px 80px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.15), 0 0 0 2px #000;
-}
-.monitor-bezel::after{content:'';position:absolute;left:50%;bottom:10px;transform:translateX(-50%);
-  width:80px;height:6px;border-radius:6px;background:#000;box-shadow:inset 0 1px 3px #000}
-.screen{width:100%;height:100%;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;
-  background:linear-gradient(#0b1420,#050a0f);box-shadow:inset 0 0 80px rgba(0,180,255,.1)}
-.scr-top{height:28px;display:flex;align-items:center;gap:6px;padding:0 12px;
-  background:linear-gradient(#111b26,#0a1017);border-bottom:1px solid #1a2636;font-size:10px;color:#7fa3c7}
-.dot{width:8px;height:8px;border-radius:50%}
-.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
-.scr-title{margin-inline-start:8px;font-weight:700;color:#9fc4e0}
-.scr-clock{margin-inline-start:auto;color:#4fd1c5;font-weight:700;letter-spacing:1px;font-family:monospace}
+/* تصميم شاشة الكمبيوتر على المكتب */
+.pc-monitor { width: 60%; height: 55%; background: #000; border-radius: 12px; border: 8px solid #1f2937; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,255,255,0.1); position: relative; transform: rotateY(10deg) rotateX(5deg); cursor: pointer; transition: transform 0.3s; display: flex; justify-content: center; align-items: center; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><text x="50" y="50" fill="rgba(255,255,255,0.05)" font-size="20">Syriatel CRM</text></svg>') center; }
+.pc-monitor:hover { transform: rotateY(5deg) rotateX(2deg) scale(1.02); }
+.pc-monitor::after { content: 'اضغط لفتح الكمبيوتر'; color: #4fd1c5; font-weight: 800; font-size: 20px; text-shadow: 0 0 10px #4fd1c5; }
 
-/* ================= UI INSIDE MONITOR ================= */
-.ui-layer{flex:1;display:flex;position:relative}
-.ui-sidebar{width:280px;border-left:1px solid #16202e;background:#0a131c;display:flex;flex-direction:column}
-.cp-avatar{width:100%;height:180px;background:#0d1520;border-bottom:1px solid #16202e;position:relative}
-.cp-avatar svg{width:100%;height:100%;display:block}
-.cp-info{padding:15px;flex:1}
-.cp-name{font-weight:900;font-size:18px;margin-bottom:5px}
-.cp-mood{font-size:11px;color:#8fb4d8;margin-bottom:15px}
-.cp-sat{height:8px;border-radius:8px;background:#101a26;overflow:hidden;border:1px solid #1e2c3d;margin-bottom:15px}
-.cp-sat-fill{height:100%;width:60%;border-radius:8px;transition:.5s ease;background:linear-gradient(90deg,#ff4d4d,#ffb020,#3ddc84)}
-.cp-tag{font-size:11px;color:#4fd1c5;background:rgba(79,209,197,0.1);padding:6px 10px;border-radius:6px;text-align:center}
-.ui-main{flex:1;display:flex;flex-direction:column}
-.chat{flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:10px;
-  scrollbar-width:thin;scrollbar-color:#1e2c3d transparent}
-.chat::-webkit-scrollbar{width:6px}
-.chat::-webkit-scrollbar-thumb{background:#1e2c3d;border-radius:6px}
-.msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:12.5px;line-height:1.6;
-  animation:pop .3s ease;word-break:break-word}
-@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.msg.customer{align-self:flex-start;background:#182b3d;border:1px solid #1f3a52;color:#cfe4f5;border-top-left-radius:2px}
-.msg.agent{align-self:flex-end;background:linear-gradient(#1d6b52,#14503e);color:#e6fff6;border-top-right-radius:2px}
-.msg.sys{align-self:center;background:#141d29;border:1px dashed #2a3d52;color:#7fd1b9;font-size:10.5px;font-family:monospace}
-.msg.typing{color:#6f8fae;font-style:italic}
-.composer{display:flex;gap:8px;padding:12px;background:#0a121c;border-top:1px solid #16202e}
-.composer input{flex:1;background:#101c28;border:1px solid #1e3044;border-radius:8px;padding:10px 14px;
-  color:#e8eefb;font-family:inherit;font-size:12.5px;outline:none}
-.composer input:focus{border-color:#37e0c0}
-.composer button{border:none;border-radius:8px;padding:0 18px;font-family:inherit;font-weight:800;
-  font-size:12px;cursor:pointer;transition:.2s}
-#send{background:linear-gradient(#2ee6a8,#12a97c);color:#04241a}
-#endBtn{background:linear-gradient(#ff6b6b,#c92a2a);color:#fff}
+/* تصميم الهاتف على المكتب */
+.desk-phone { width: 200px; height: 350px; background: #111; border-radius: 30px; border: 4px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.8); position: relative; transform: rotateY(-15deg) rotateX(10deg); cursor: pointer; transition: transform 0.3s; display: flex; justify-content: center; align-items: center; }
+.desk-phone:hover { transform: rotateY(-5deg) rotateX(5deg) scale(1.05); }
+.desk-phone::after { content: 'اضغط لفتح الهاتف'; color: #3b82f6; font-weight: 800; font-size: 14px; }
 
-/* ================= PHONE ================= */
-.phone{position:absolute;left:40px;top:420px;width:240px;height:120px;z-index:6;
-  transform:perspective(800px) rotateX(15deg) rotateZ(-3deg);}
-.phone-body{position:absolute;inset:0;border-radius:14px;
-  background:linear-gradient(160deg,#2b3444,#12171f);box-shadow:0 20px 40px rgba(0,0,0,.8),
-  inset 0 1px 0 rgba(255,255,255,.12),0 0 0 2px #000;
-  display:flex;align-items:center;justify-content:space-between;padding:0 15px}
-.phone-lcd{font-size:11px;color:#5ce0b0;font-family:monospace;
-  background:#08120e;border:1px solid #173a2c;border-radius:6px;padding:8px 10px;min-width:100px;text-align:center}
-.phone-btn{width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;font-family:inherit;
-  font-weight:900;font-size:13px;color:#fff;transition:.2s;box-shadow:0 6px 20px rgba(0,0,0,.6)}
-.phone-btn.answer{background:radial-gradient(circle at 35% 30%,#4ef0a6,#0f9c6c)}
-.phone-btn.hang{background:radial-gradient(circle at 35% 30%,#ff7b7b,#b81f1f)}
-.phone-btn:disabled{opacity:.3;cursor:not-allowed}
-.phone-btn:not(:disabled):hover{transform:scale(1.05)}
-.ringing{animation:ringsh .35s infinite}
-@keyframes ringsh{0%,100%{transform:perspective(800px) rotateX(15deg) rotateZ(-3deg) translateX(0)}
-  25%{transform:perspective(800px) rotateX(15deg) rotateZ(-2deg) translateX(-5px)}
-  75%{transform:perspective(800px) rotateX(15deg) rotateZ(-4deg) translateX(5px)}}
-.ring-glow{position:absolute;inset:-15px;border-radius:24px;pointer-events:none;opacity:0;
-  background:radial-gradient(circle,rgba(60,230,180,.4),transparent 70%);transition:.3s}
-.ring-glow.on{opacity:1;animation:pulse 1.2s infinite}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+/* زر البداية */
+#start-screen { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); z-index: 50; display: flex; flex-direction: column; gap: 15px; transition: opacity 0.5s ease, transform 0.5s ease; }
+#start-screen.hide { opacity: 0; transform: translateY(-50%) translateX(-50px); pointer-events: none; }
+#start-btn { padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-size: 24px; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 10px 30px rgba(16,185,129,0.4); transition: 0.2s; }
+#start-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(16,185,129,0.6); }
 
-/* ================= TABLET ================= */
-.tablet{position:absolute;left:980px;top:280px;width:280px;height:220px;z-index:6}
-.tablet-body{position:absolute;inset:0;border-radius:12px;padding:10px;
-  background:linear-gradient(160deg,#39445a,#0f141c);
-  box-shadow:0 25px 50px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.14),0 0 0 2px #000;
-  transform:perspective(1000px) rotateY(-18deg) rotateX(8deg) rotateZ(-4deg)}
-.tablet-screen{width:100%;height:100%;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;
-  background:linear-gradient(#0a1420,#070d15)}
-.tt-title{font-size:10px;font-weight:800;color:#4fd1c5;padding:6px 10px;background:#0d1926;
-  border-bottom:1px solid #16202e;display:flex;justify-content:space-between}
-.tools{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px;align-content:start;overflow-y:auto}
-.tool{display:flex;align-items:center;gap:6px;padding:0 8px;height:34px;border-radius:6px;
-  background:linear-gradient(#14212e,#0e1823);border:1px solid #1e3044;color:#a8c8e0;
-  font-size:10px;font-family:inherit;cursor:pointer;transition:.16s;text-align:right;font-weight:700}
-.tool:hover:not(:disabled){background:#1b3448;border-color:#37e0c0;color:#eafff8;transform:translateY(-1px)}
-.tool:disabled{opacity:.3;cursor:not-allowed}
-.tool.done{border-color:#2ee6a8;background:#0e2a22;color:#5ff0bb}
+/* الشاشات المكبرة (الهاتف والكمبيوتر) */
+.overlay-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 100; }
+.overlay-screen.active { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ================= START SCREEN ================= */
-#startScreen{position:absolute;inset:0;z-index:100;display:flex;align-items:center;
-  background:rgba(0,0,0,0.4);backdrop-filter:blur(2px);transition:opacity 1s ease}
-.start-box{width:380px;margin-right:80px;background:linear-gradient(160deg,rgba(20,30,45,0.95),rgba(10,15,22,0.98));
-  border:1px solid #2a405a;border-radius:16px;padding:30px;box-shadow:0 30px 80px rgba(0,0,0,0.8);
-  transform:translateX(-30px);opacity:0;animation:slideIn 0.8s forwards 0.2s}
-@keyframes slideIn{to{transform:translateX(0);opacity:1}}
-.start-box h1{font-size:32px;font-weight:900;color:#2ee6a8;margin-bottom:5px;text-shadow:0 0 20px rgba(46,230,168,0.4)}
-.start-box p{font-size:13px;color:#8fb4d8;line-height:1.7;margin-bottom:20px}
-#apiKeyInput{width:100%;padding:12px 15px;border-radius:10px;border:1px solid #23415a;
-  background:#0b1824;color:#e8eefb;font-family:inherit;font-size:12px;outline:none;margin-bottom:15px;direction:ltr}
-#apiKeyInput:focus{border-color:#2ee6a8;box-shadow:0 0 0 3px rgba(46,230,168,.15)}
-#startBtn{width:100%;padding:15px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;
-  font-weight:900;font-size:16px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c);
-  box-shadow:0 10px 30px rgba(46,230,168,.3);transition:.2s; display:flex; justify-content:center; align-items:center; gap:10px}
-#startBtn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+/* واجهة الكمبيوتر المكبرة */
+.pc-full { width: 90vw; max-width: 900px; height: 85vh; max-height: 650px; background: #0f172a; border-radius: 16px; border: 1px solid #1e293b; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.9); }
+.pc-header { background: #1e293b; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+.pc-header h2 { color: #38bdf8; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+.pc-header .status { color: #94a3b8; font-size: 12px; }
+.pc-body { display: flex; flex: 1; overflow: hidden; }
+.pc-tools { width: 35%; background: #0f172a; border-left: 1px solid #1e293b; padding: 15px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.pc-tools h3 { color: #64748b; font-size: 12px; margin-bottom: 5px; }
+.pc-tool-btn { padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; font-size: 13px; text-align: right; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+.pc-tool-btn:hover { background: #334155; border-color: #38bdf8; }
+.pc-tool-btn.done { border-color: #10b981; background: rgba(16,185,129,0.1); color: #10b981; }
+.pc-chat { flex: 1; display: flex; flex-direction: column; background: #020617; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+.msg.cust { background: #1e293b; align-self: flex-start; border-top-left-radius: 4px; }
+.msg.agent { background: #059669; align-self: flex-end; border-top-right-radius: 4px; }
+.msg.sys { align-self: center; background: transparent; border: 1px dashed #334155; color: #10b981; font-size: 12px; }
+.chat-input { padding: 15px; background: #0f172a; border-top: 1px solid #1e293b; display: flex; gap: 10px; }
+.chat-input input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #020617; color: #fff; outline: none; }
+.chat-input button { padding: 0 20px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.close-btn { background: #ef4444; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-/* ================= MISC ================= */
-#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;
-  background:#132434;border:1px solid #2ee6a8;color:#c9fff0;padding:10px 25px;border-radius:30px;
-  font-size:13px;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
-#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+/* واجهة الهاتف المكبرة (شكل آيفون) */
+.iphone-frame { width: 380px; height: 780px; max-height: 90vh; max-width: 95vw; background: #000; border-radius: 50px; border: 12px solid #1f2937; position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 0 2px #000, 0 30px 80px rgba(0,0,0,0.9); }
+.iphone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 35px; background: #000; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; z-index: 10; }
+.iphone-screen { flex: 1; background: linear-gradient(180deg, #0f172a, #020617); display: flex; flex-direction: column; position: relative; }
+.iphone-status-bar { height: 50px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 25px 5px; font-size: 12px; font-weight: bold; color: #fff; }
+.iphone-content { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; }
+.incoming-call { display: flex; flex-direction: column; align-items: center; gap: 20px; animation: slideUp 0.5s ease; }
+@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.caller-avatar { width: 120px; height: 120px; border-radius: 50%; background: #1e293b; border: 4px solid #38bdf8; display: flex; justify-content: center; align-items: center; font-size: 40px; margin-bottom: 10px; }
+.caller-name { font-size: 28px; font-weight: 900; color: #fff; }
+.caller-number { font-size: 14px; color: #94a3b8; }
+.call-actions { display: flex; justify-content: space-around; width: 100%; margin-top: 40px; }
+.btn-call { width: 70px; height: 70px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 24px; transition: 0.2s; }
+.btn-answer { background: #10b981; color: #fff; box-shadow: 0 10px 20px rgba(16,185,129,0.4); }
+.btn-hang { background: #ef4444; color: #fff; box-shadow: 0 10px 20px rgba(239,68,68,0.4); }
+.btn-call:hover { transform: scale(1.1); }
 
-#modal{position:fixed;inset:0;z-index:250;display:none;place-items:center;background:rgba(3,6,10,.85);backdrop-filter:blur(5px)}
-#modal.show{display:grid}
-.modal-box{width:min(400px,90vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
-  border-radius:16px;padding:25px;box-shadow:0 30px 70px rgba(0,0,0,.8);animation:pop .3s}
-.modal-box h3{font-size:16px;margin-bottom:15px;color:#4fd1c5}
-.fld{display:block;margin-bottom:12px}
-.fld span{display:block;font-size:12px;color:#8fb4d8;margin-bottom:6px}
-.fld input,.fld select{width:100%;padding:12px;border-radius:8px;border:1px solid #1e3044;
-  background:#0a1520;color:#e8eefb;font-family:inherit;font-size:13px;outline:none}
-.fld input:focus{border-color:#2ee6a8}
-.modal-actions{display:flex;gap:10px;margin-top:20px}
-.modal-actions button{flex:1;padding:12px;border-radius:8px;border:none;font-family:inherit;font-weight:900;font-size:13px;cursor:pointer}
-#modalOk{background:linear-gradient(#2ee6a8,#12a97c);color:#04241a}
-#modalCancel{background:#1a2634;color:#8fb4d8}
-#result{position:fixed;inset:0;z-index:260;display:none;place-items:center;background:rgba(3,6,10,.9);backdrop-filter:blur(6px)}
-#result.show{display:grid}
-.result-box{width:min(380px,90vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
-  border-radius:16px;padding:30px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.9);animation:pop .3s}
-.result-box h2{font-size:22px;margin-bottom:10px}
-.result-box .score{font-size:46px;font-weight:900;color:#2ee6a8;margin:15px 0;text-shadow:0 0 30px rgba(46,230,168,.5)}
-.result-box p{font-size:13px;color:#8fb4d8;line-height:1.8}
-.result-box button{margin-top:25px;padding:14px 40px;border-radius:10px;border:none;cursor:pointer;
-  font-family:inherit;font-weight:900;font-size:14px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c)}
+/* التبويبات داخل الهاتف */
+.phone-tabs { display: flex; border-top: 1px solid #1e293b; background: #0f172a; padding: 10px 0; }
+.phone-tab { flex: 1; text-align: center; color: #64748b; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.phone-tab.active { color: #38bdf8; }
+.phone-tab svg { width: 24px; height: 24px; fill: currentColor; }
+
+/* المودال */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(5px); }
+.modal-overlay.active { display: flex; }
+.modal-content { background: #1e293b; padding: 25px; border-radius: 16px; width: 350px; max-width: 90vw; border: 1px solid #334155; }
+.modal-content h3 { margin-bottom: 15px; color: #38bdf8; }
+.modal-content input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; outline: none; }
+.modal-content .actions { display: flex; gap: 10px; }
+.modal-content button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+.btn-confirm { background: #10b981; color: #fff; }
+.btn-cancel { background: #475569; color: #fff; }
+
+/* توست */
+#toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; border: 1px solid #38bdf8; display: none; z-index: 300; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+#toast.show { display: block; animation: fadeIn 0.3s ease; }
+
 </style>
 </head>
 <body>
-<div id="viewport">
-  <div id="stage">
-    <div class="room">
-      <div class="wall"></div>
-      <div class="floor"></div>
-      <div class="desk-top"></div>
-      <div class="desk-front"></div>
 
-      <div class="monitor">
-        <div class="monitor-bezel">
-          <div class="screen">
-            <div class="scr-top">
-              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-              <span class="scr-title">Syriatel CRM v4</span>
-              <span class="scr-clock" id="clock">--:--</span>
-            </div>
-            <div class="ui-layer">
-              <div class="ui-sidebar" id="custPanel" style="opacity:0; transition:.4s">
-                <div class="cp-avatar" id="cpAvatar"></div>
-                <div class="cp-info">
-                  <div class="cp-name" id="cpName">—</div>
-                  <div class="cp-mood" id="cpMood">—</div>
-                  <div class="cp-sat"><div class="cp-sat-fill" id="cpSat"></div></div>
-                  <div class="cp-tag" id="cpTag">—</div>
-                </div>
-              </div>
-              <div class="ui-main">
-                <div class="chat" id="chat">
-                  <div class="msg sys" style="margin-top:auto">في انتظار بدء الدوام...</div>
-                </div>
-                <div class="composer">
-                  <input id="msg" placeholder="اكتب ردك للزبون..." autocomplete="off" disabled>
-                  <button id="send" disabled>إرسال</button>
-                  <button id="endBtn" disabled>إنهاء</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="phone" id="phone">
-        <div class="ring-glow" id="ringGlow"></div>
-        <div class="phone-body" id="phoneBody">
-          <div class="phone-lcd" id="phoneLcd">لا مكالمات</div>
-          <button class="phone-btn answer" id="answerBtn" disabled>رد</button>
-        </div>
-      </div>
-
-      <div class="tablet">
-        <div class="tablet-body">
-          <div class="tablet-screen">
-            <div class="tt-title"><span>أدوات النظام</span><span id="toolCount">0/0</span></div>
-            <div class="tools" id="tools"></div>
-          </div>
-        </div>
-      </div>
-
+<!-- المكتب الأساسي -->
+<div id="office">
+  <div class="desk-layout">
+    <!-- زر البداية -->
+    <div id="start-screen">
+      <button id="start-btn">ابدأ الدوام</button>
     </div>
-
-    <!-- START SCREEN -->
-    <div id="startScreen">
-      <div class="start-box">
-        <h1>مركز خدمة سيريتل</h1>
-        <p>مرحباً بك. جهّز نفسك لاستقبال المكالمات، حل مشاكل المشتركين، والحفاظ على رضاهم.</p>
-        <input id="apiKeyInput" placeholder="مفتاح Gemini API (اختياري)">
-        <button id="startBtn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          ابدأ دوامك
-        </button>
-      </div>
-    </div>
-
+    
+    <!-- الكمبيوتر على المكتب -->
+    <div class="pc-monitor" id="pc-monitor" onclick="openPC()"></div>
+    
+    <!-- الهاتف على المكتب -->
+    <div class="desk-phone" id="desk-phone" onclick="openPhone()"></div>
   </div>
 </div>
 
-<div id="toast"></div>
-
-<div id="modal">
-  <div class="modal-box">
-    <h3 id="modalTitle"></h3>
-    <div id="modalBody"></div>
-    <div class="modal-actions">
-      <button id="modalOk">تنفيذ</button>
-      <button id="modalCancel">إلغاء</button>
+<!-- شاشة الكمبيوتر المكبرة -->
+<div class="overlay-screen" id="pc-screen">
+  <div class="pc-full">
+    <div class="pc-header">
+      <h2>🖥️ Syriatel CRM</h2>
+      <span class="status" id="pc-status">في انتظار العميل...</span>
+      <button class="close-btn" onclick="closePC()">إغلاق</button>
+    </div>
+    <div class="pc-body">
+      <div class="pc-tools" id="pc-tools">
+        <h3>أدوات النظام</h3>
+        <!-- سيتم توليد الأزرار هنا -->
+      </div>
+      <div class="pc-chat">
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg sys">مرحباً بك. ابدأ باستقبال المكالمات من الهاتف.</div>
+        </div>
+        <div class="chat-input">
+          <input type="text" id="chat-input-field" placeholder="اكتب ردك هنا..." onkeypress="handleEnter(event)">
+          <button onclick="sendMessage()">إرسال</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<div id="result">
-  <div class="result-box">
-    <h2 id="resTitle">انتهت المكالمة</h2>
-    <div class="score" id="resScore">0</div>
-    <p id="resText"></p>
-    <button id="resBtn">المكالمة التالية</button>
+<!-- شاشة الهاتف المكبرة -->
+<div class="overlay-screen" id="phone-screen">
+  <div class="iphone-frame">
+    <div class="iphone-notch"></div>
+    <div class="iphone-screen">
+      <div class="iphone-status-bar">
+        <span id="phone-time">9:41</span>
+        <span>📶 🔋</span>
+      </div>
+      <div class="iphone-content" id="phone-content">
+        <!-- محتوى الهاتف يتغير هنا -->
+        <div class="msg sys">لا توجد مكالمات حالياً...</div>
+      </div>
+      <div class="phone-tabs">
+        <div class="phone-tab active" onclick="switchTab('calls')">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          المكالمات
+        </div>
+        <div class="phone-tab" onclick="switchTab('info')">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          معلومات الزبون
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- المودال -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-content">
+    <h3 id="modal-title">إجراء</h3>
+    <div id="modal-inputs"></div>
+    <div class="actions">
+      <button class="btn-confirm" onclick="submitModal()">تنفيذ</button>
+      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- توست -->
+<div id="toast">رسالة</div>
 
 <script>
-const $ = s => document.querySelector(s);
-const pick = a => a[Math.floor(Math.random()*a.length)];
-const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
-const clamp = (v,a=0,b=100) => Math.max(a,Math.min(b,v));
-const sleep = ms => new Promise(r=>setTimeout(r,ms));
-
+// ==========================================
+// 1. إدارة الحالة (State Management)
+// ==========================================
 const state = {
-  phase:'idle', apiKey:null, customer:null, history:[], sat:60, warnedAI:false,
-  stats:{calls:0, fixed:0, score:0}, stall:0, callTimeout:null
+  phase: 'start', // start, waiting, ringing, active
+  customer: null,
+  chatHistory: [],
+  satisfaction: 60,
+  doneTools: [],
+  aiKey: null,
+  timeouts: [],
+  ringInterval: null,
+  activeTab: 'calls',
+  isPCBlur: true
 };
 
-function fitStage(){
-  const s = Math.min(window.innerWidth/1280, window.innerHeight/800);
-  $('#stage').style.transform = `scale(${s})`;
-}
-window.addEventListener('resize', fitStage); fitStage();
-
-/* AUDIO */
-let AC = null;
-function actx(){
-  if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-  if(AC.state === 'suspended') AC.resume();
-  return AC;
-}
-function beep(freq=880, dur=.08, type='sine', vol=.05){
-  try{
-    const a = actx(), o = a.createOscillator(), g = a.createGain();
-    o.type = type; o.frequency.value = freq;
-    g.gain.setValueAtTime(vol, a.currentTime);
-    g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + dur);
-    o.connect(g); g.connect(a.destination);
-    o.start(); o.stop(a.currentTime + dur);
-  }catch(e){}
-}
-function successSound(){ beep(880,.1); setTimeout(()=>beep(1318,.15),90); }
-let ringTimer = null;
-function startRing(){
-  if(ringTimer) return;
-  const ring = () => { beep(1046,.1); setTimeout(()=>beep(1396,.1),120); setTimeout(()=>beep(1046,.1),280); };
-  ring(); ringTimer = setInterval(ring, 1600);
-}
-function stopRing(){ clearInterval(ringTimer); ringTimer = null; }
-
-/* TTS */
-let voices = [];
-function loadVoices(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){} }
-if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
-let speakToken = 0;
-function speak(text, pitch=1, rate=1){
-  if(!('speechSynthesis' in window)) return;
-  const myToken = ++speakToken;
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    const ar = voices.filter(v => /^ar/i.test(v.lang));
-    const v = ar.find(x => /sy|sa/i.test(x.lang)) || ar[0];
-    if(v) u.voice = v;
-    u.lang = v ? v.lang : 'ar-SA';
-    u.pitch = pitch; u.rate = rate;
-    u.onend = () => { if(myToken === speakToken) setSpeaking(false); };
-    u.onerror = () => { if(myToken === speakToken) setSpeaking(false); };
-    setSpeaking(true);
-    speechSynthesis.speak(u);
-    setTimeout(()=>{ if(myToken === speakToken) setSpeaking(false); }, Math.min(15000, 800 + text.length * 80));
-  }catch(e){ setSpeaking(false); }
-}
-function setSpeaking(on){
-  const av = $('#cpAvatar');
-  if(!av) return;
-  if(on) av.classList.add('speaking'); else av.classList.remove('speaking');
-}
-
-/* AVATAR */
-function makeLook(){
-  return { skin: pick(['#f3cba6','#e6b183','#d19a6a','#b57a4a','#8d5a33']), hair: pick(['#1c1c1c','#2b1b12','#4a2c17']), shirt: pick(['#2b5d8a','#3a6b4f','#7a4a6b']), bg1: pick(['#1b3a5c','#1d4a3c','#3c2a4a']), glasses: Math.random()<.3, beard: Math.random()<.35, female: Math.random()<.45 };
-}
-function avatarSVG(L, id){
-  const hairTop = L.female ? `<path d="M52 88 Q50 34 100 30 Q150 34 148 88 Q148 60 100 52 Q52 60 52 88 Z" fill="${L.hair}"/>` : `<path d="M56 82 Q54 40 100 36 Q146 40 144 82 Q138 62 100 58 Q62 62 56 82 Z" fill="${L.hair}"/>`;
-  return `<svg viewBox="0 0 200 200"><defs><linearGradient id="bg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${L.bg1}"/><stop offset="1" stop-color="#050a0f"/></linearGradient></defs>
-  <rect width="200" height="200" fill="url(#bg${id})"/>
-  <path d="M28 200 Q52 148 100 148 Q148 148 172 200 Z" fill="${L.shirt}"/>
-  <rect x="88" y="126" width="24" height="28" rx="8" fill="${L.skin}" opacity=".8"/>
-  <ellipse cx="100" cy="96" rx="46" ry="54" fill="${L.skin}"/>
-  ${hairTop}
-  <circle cx="84" cy="96" r="5" fill="#20242b"/><circle cx="116" cy="96" r="5" fill="#20242b"/>
-  <ellipse class="mouth" cx="100" cy="122" rx="12" ry="4" fill="#7a3540" style="transition:ry .1s"/>
-  ${L.glasses?'<circle cx="84" cy="96" r="14" stroke="#111" stroke-width="2" fill="none"/><circle cx="116" cy="96" r="14" stroke="#111" stroke-width="2" fill="none"/>':''}
-  ${L.beard?'<path d="M70 118 Q100 160 130 118 Q128 148 100 152 Q72 148 70 118 Z" fill="'+L.hair+'" opacity=".8"/>':''}
-  </svg>`;
-}
-
-/* DATA */
+// ==========================================
+// 2. البيانات (الزبائن، المشاكل، الأدوات)
+// ==========================================
+const NAMES = ['أحمد','ليلى','سمير','رنا','خالد','نور','مازن','سلمى','فادي','هبة'];
 const PROBLEMS = [
-  { id:'recharge', title:'شحن رصيد', data:()=>({amount:pick([10000,15000,25000])}), steps:['lookup','recharge'], intro:c=>`ألو؟ ${c.name} معك. بدي اشحن رصيدي بـ ${c.data.amount} ليرة.`, fix:()=>`وصل الرصيد! شكراً كتير.` },
-  { id:'transfer', title:'تحويل رصيد', data:()=>({amount:pick([5000,10000]), recipient:'09'+rnd(10000000,99999999)}), steps:['lookup','transfer'], intro:c=>`مرحبا ${c.name}. بدي حوّل ${c.data.amount} ليرة لرقم ${c.data.recipient}.`, fix:()=>`وصل التحويل! الله يعطيك العافية.` },
-  { id:'slow', title:'الإنترنت بطيء', data:()=>({}), steps:['linecheck','restart'], intro:c=>`الإنترنت عندي بطيء كتير، أنا ${c.name}. شو القصة؟`, fix:()=>`أيوا صار يشتغل بسرعة! شكراً.` },
-  { id:'nonet', title:'انقطاع الشبكة', data:()=>({}), steps:['linecheck','ticket'], intro:c=>`مرحبا أنا ${c.name}. من ساعتين ما في شبكة أبداً.`, fix:()=>`طيب بستنى التذكرة تتحل. مشكور.` },
-  { id:'package', title:'تغيير باقة', data:()=>({pkg:pick(['باقة الشباب','باقة العائلة'])}), steps:['lookup','package'], intro:c=>`بدي غيّر باقتي لـ${c.data.pkg}، أنا ${c.name}.`, fix:()=>`شفت الباقة تغيرت! حلو كتير.` }
+  { id: 'recharge', title: 'شحن رصيد', steps: ['lookup', 'recharge'], data: () => ({ amount: pick([5000, 10000, 15000]) }), intro: c => `ألو؟ أنا ${c.name}. بدي اشحن رصيدي بـ ${c.data.amount} ليرة.`, isScam: false },
+  { id: 'transfer', title: 'تحويل رصيد', steps: ['lookup', 'transfer'], data: () => ({ amount: pick([2000, 5000]), recipient: '09' + rnd(10000000, 99999999) }), intro: c => `مرحبا، معك ${c.name}. بدي حوّل ${c.data.amount} ليرة لرقم ${c.data.recipient}.`, isScam: false },
+  { id: 'scam_lost', title: 'سرقة رصيد (نصب)', steps: ['ticket'], data: () => ({}), intro: c => `ألو! ${c.name} معك. انسرق رصيدي كله! بدي تعويض فوري 50 ألف ليرة هلأ!`, isScam: true, scamReact: () => 'شو يعني تذكرة؟! أنا بدي مصاري هلأ! إنت نصاب!' },
+  { id: 'scam_net', title: 'انقطاع شبكة (نصب)', steps: ['ticket'], data: () => ({}), intro: c => `مرحبا، أنا ${c.name}. الشبكة مقطوعة من يومين وأنا بشتغل عالنت. بدي تعويضي بباقة مجانية شهر!`, isScam: true, scamReact: () => 'ليش لأ؟ أنا خسرت شغلي! بدي باقة مجانية!' },
+  { id: 'slow', title: 'الإنترنت بطيء', steps: ['linecheck', 'restart'], data: () => ({}), intro: c => `الإنترنت عندي بطيء، أنا ${c.name}. شو القصة؟`, isScam: false }
 ];
+
 const TOOLS = [
-  {id:'lookup', name:'استعلام رقم', icon:'🔍'}, {id:'linecheck',name:'فحص الخط', icon:'📶'},
-  {id:'recharge', name:'شحن رصيد', icon:'💳', fields:[{key:'amount',label:'المبلغ',type:'number'}]},
-  {id:'transfer', name:'تحويل رصيد', icon:'🔁', fields:[{key:'recipient',label:'الرقم',type:'text'},{key:'amount',label:'المبلغ',type:'number'}]},
-  {id:'package', name:'تغيير الباقة', icon:'📦', fields:[{key:'pkg',label:'الباقة',type:'text'}]},
-  {id:'ticket', name:'فتح تذكرة', icon:'🎫'}, {id:'restart', name:'إعادة تشغيل', icon:'🔄'}
+  { id: 'lookup', name: 'التحقق من الحساب', icon: '🔍' },
+  { id: 'linecheck', name: 'فحص حالة الخط', icon: '📶' },
+  { id: 'recharge', name: 'شحن رصيد', icon: '💳', fields: [{ key: 'amount', label: 'المبلغ', type: 'number' }] },
+  { id: 'transfer', name: 'تحويل رصيد', icon: '🔁', fields: [{ key: 'recipient', label: 'رقم المستلم', type: 'text' }, { key: 'amount', label: 'المبلغ', type: 'number' }] },
+  { id: 'ticket', name: 'فتح تذكرة فنية', icon: '🎫' },
+  { id: 'restart', name: 'إعادة تشغيل الخدمة', icon: '🔄' }
 ];
 
-/* LOGIC */
-const chatEl = $('#chat');
-function addMsg(role, text){
-  const d = document.createElement('div'); d.className = 'msg ' + role; d.textContent = text;
-  chatEl.appendChild(d); chatEl.scrollTop = chatEl.scrollHeight;
-}
-function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('on'); setTimeout(()=>el.classList.remove('on'), 3000); }
-function changeSat(d){
-  state.sat = clamp(state.sat + d, 0, 100);
-  $('#cpSat').style.width = state.sat + '%';
-  $('#cpMood').textContent = state.sat>=70?'😊 راضي':state.sat>=40?'😐 محايد':'😠 متضايق';
-}
-function renderTools(){
-  const wrap = $('#tools'); wrap.innerHTML = '';
-  TOOLS.forEach(t => {
-    const b = document.createElement('button'); b.className = 'tool'; b.dataset.id = t.id;
-    b.innerHTML = `<span>${t.icon}</span><span>${t.name}</span>`;
-    b.onclick = () => onToolClick(t); wrap.appendChild(b);
-  });
-}
-function refreshToolStates(){
-  document.querySelectorAll('.tool').forEach(b => {
-    b.disabled = state.phase !== 'active' || !state.customer?.revealed;
-    b.classList.toggle('done', !!(state.customer && state.customer.done.includes(b.dataset.id)));
-  });
-  if(state.customer) $('#toolCount').textContent = `${state.customer.done.length}/${state.customer.problem.steps.length}`;
+// ==========================================
+// 3. الدوال المساعدة
+// ==========================================
+const $ = s => document.querySelector(s);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t.timer); t.timer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-function onToolClick(tool){
-  if(state.phase !== 'active' || !state.customer || !state.customer.revealed) return toast('سأل الزبون عن رقمه أولاً!');
-  if(tool.fields) openModal(tool.name, tool.fields, vals => runTool(tool, vals));
-  else runTool(tool, {});
-}
-function runTool(tool, params){
-  const c = state.customer;
-  if(!c.problem.steps.includes(tool.id)) { changeSat(-5); addMsg('sys', '❌ إجراء غير مفيد'); return; }
-  if(c.done.includes(tool.id)) return toast('منفذ مسبقاً');
-  
-  if(tool.id==='recharge' && Number(params.amount)!==c.data.amount) return toast('المبلغ خطأ!');
-  if(tool.id==='transfer' && params.recipient!==c.data.recipient) return toast('الرقم خطأ!');
-  if(tool.id==='package' && params.pkg!==c.data.pkg) return toast('الباقة خطأ!');
-
-  c.done.push(tool.id); changeSat(15); successSound(); addMsg('sys', `✅ تم تنفيذ: ${tool.name}`);
-  refreshToolStates();
-  
-  if(c.problem.steps.every(s=>c.done.includes(s))) {
-    setTimeout(()=>{ addMsg('sys', '🎉 تم الحل!'); addMsg('customer', c.problem.fix()); speak(c.problem.fix()); changeSat(20); }, 1000);
-  } else {
-    addMsg('customer', 'طيب... وبعدين؟'); speak('طيب... وبعدين؟');
-  }
-}
-
-function openModal(title, fields, cb){
-  $('#modalTitle').textContent = title;
-  const body = $('#modalBody'); body.innerHTML = '';
-  const inputs = {};
-  fields.forEach(f => {
-    const l = document.createElement('label'); l.className = 'fld';
-    l.innerHTML = `<span>${f.label}</span>`;
-    const i = document.createElement('input'); i.type = f.type || 'text'; l.appendChild(i); body.appendChild(l); inputs[f.key] = i;
-  });
-  $('#modalOk').onclick = () => { cb(Object.fromEntries(Object.entries(inputs).map(([k,v])=>[k,v.value.trim()]))); closeModal(); };
-  $('#modalCancel').onclick = closeModal;
-  $('#modal').classList.add('show');
-}
-function closeModal(){ $('#modal').classList.remove('show'); }
-
-/* AI / LOCAL TURN */
-async function aiTurn(text){
-  if(!state.apiKey) return null;
-  const c = state.customer;
-  const prompt = `أنت زبون سوري اسمك ${c.name}. مشكلتك: ${c.problem.title}. التفاصيل: ${c.intro}. رصاك: ${state.sat}. 
-  الموظف قال: "${text}". 
-  إذا سألك عن رقمك، أعطه: ${c.msisdn}.
-  أعد الرد بصيغة JSON: {"reply":"كلامك بالعامية", "delta":0} (delta من -10 لـ 10).`;
+// أصوات
+let AC = null;
+function playSound(type) {
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${state.apiKey}`, {
-      method:'POST', body: JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}], generationConfig:{responseMimeType:"application/json"}})
-    });
-    const data = await res.json();
-    const obj = JSON.parse(data.candidates[0].content.parts[0].text.replace(/```json|```/g,''));
-    changeSat(obj.delta || 0);
-    if(text.includes('رقم') || text.includes('نمرة')) c.revealed = true;
-    return obj.reply;
-  } catch(e){ return null; }
-}
-function localTurn(text){
-  const c = state.customer;
-  if(!c.revealed && (text.includes('رقم')||text.includes('نمرة'))) { c.revealed = true; return `رقمي هو ${c.msisdn}`; }
-  if(c.done.length > 0) return pick(['تمام، شو الخطوة التانية؟','طيب، وبعدين؟','إن شاء الله تنحل.']);
-  return pick(['شو رح تعمل؟','طيب أنا مستعجل.','فهمت، بس بدي حل.']);
-}
-
-async function sendMessage(){
-  const input = $('#msg'); const txt = input.value.trim();
-  if(!txt || state.phase !== 'active') return; input.value = '';
-  addMsg('agent', txt); clickSound();
-  const typing = document.createElement('div'); typing.className='msg customer typing'; typing.textContent='يكتب...'; chatEl.appendChild(typing); chatEl.scrollTop=chatEl.scrollHeight;
-  
-  let reply = await aiTurn(txt);
-  if(!reply) { await sleep(600); reply = localTurn(txt); }
-  typing.remove();
-  addMsg('customer', reply); speak(reply);
-  refreshToolStates();
+    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.connect(g); g.connect(AC.destination);
+    if (type === 'ring') {
+      o.frequency.value = 1000; g.gain.value = 0.1; o.start();
+      setTimeout(() => { o.frequency.value = 1200; }, 150);
+      setTimeout(() => { o.stop(); }, 300);
+    } else if (type === 'click') {
+      o.frequency.value = 800; g.gain.value = 0.05; o.start(); o.stop(AC.currentTime + 0.05);
+    } else if (type === 'success') {
+      o.frequency.value = 1000; g.gain.value = 0.1; o.start();
+      setTimeout(() => { o.frequency.value = 1500; }, 100);
+      setTimeout(() => { o.stop(); }, 250);
+    } else if (type === 'error') {
+      o.frequency.value = 300; o.type = 'sawtooth'; g.gain.value = 0.1; o.start(); o.stop(AC.currentTime + 0.2);
+    }
+  } catch (e) {}
 }
 
-/* CALL FLOW */
-function startCall(){
-  if(state.phase !== 'idle') return;
-  state.customer = { name: pick(['أحمد','ليلى','سمير','رنا','خالد','نور'])+' '+pick(['الحلبي','الشامي','درويش']), msisdn:'09'+rnd(10000000,99999999), done:[], revealed:false, look:makeLook(), problem:pick(PROBLEMS) };
-  state.customer.data = state.customer.problem.data();
-  state.customer.intro = state.customer.problem.intro(state.customer);
-  state.customer.avatar = avatarSVG(state.customer.look, 'av'+rnd(1,999));
-  
-  state.phase = 'ringing'; state.sat = 60;
-  $('#phoneLcd').textContent = 'مكالمة واردة';
-  $('#phoneBody').classList.add('ringing');
-  $('#ringGlow').classList.add('on');
-  $('#answerBtn').disabled = false;
-  startRing();
+// النطق (TTS)
+let voices = [];
+if ('speechSynthesis' in window) {
+  speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
+  voices = speechSynthesis.getVoices();
+}
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const ar = voices.find(v => v.lang.startsWith('ar'));
+  if (ar) u.voice = ar;
+  u.lang = 'ar-SA'; u.rate = 0.95; u.pitch = 1;
+  speechSynthesis.speak(u);
 }
 
-function answerCall(){
-  if(state.phase !== 'ringing') return;
-  stopRing(); state.phase = 'active'; const c = state.customer;
-  $('#phoneBody').classList.remove('ringing'); $('#ringGlow').classList.remove('on');
-  $('#answerBtn').disabled = true; $('#phoneLcd').textContent = 'جاري...';
+// ==========================================
+// 4. واجهة المستخدم والتفاعل
+// ==========================================
+function initGame() {
+  $('#start-screen').classList.add('hide');
+  $('#office').classList.remove('blurred');
+  state.phase = 'waiting';
+  $('#pc-status').textContent = 'في انتظار العميل...';
+  updateUI();
   
-  $('#cpAvatar').innerHTML = c.avatar; $('#cpName').textContent = c.name; $('#cpTag').textContent = 'رقم: مخفي';
-  $('#custPanel').style.opacity = 1; changeSat(0); refreshToolStates();
-  chatEl.innerHTML = ''; addMsg('sys', 'بدأت المكالمة'); 
-  setTimeout(()=>{ addMsg('customer', c.intro); speak(c.intro, 0.9, 1); }, 500);
-  
-  $('#msg').disabled = false; $('#send').disabled = false; $('#endBtn').disabled = false;
+  // جدولة أول مكالمة
+  scheduleCall(rnd(3000, 6000));
 }
 
-function endCall(auto=false){
-  stopRing(); state.phase = 'ended';
-  $('#phoneBody').classList.remove('ringing'); $('#ringGlow').classList.remove('on');
-  $('#answerBtn').disabled = true; $('#phoneLcd').textContent = 'انتهت';
-  $('#custPanel').style.opacity = 0; $('#msg').disabled = true; $('#send').disabled = true; $('#endBtn').disabled = true;
+function scheduleCall(delay) {
+  const t = setTimeout(() => {
+    if (state.phase === 'waiting') startCall();
+    else if (state.phase === 'active') {
+      // إذا كان مشغول، نعيد الجدولة
+      scheduleCall(10000);
+    }
+  }, delay);
+  state.timeouts.push(t);
+}
+
+function startCall() {
+  state.phase = 'ringing';
+  state.customer = generateCustomer();
+  state.chatHistory = [];
+  state.doneTools = [];
+  state.satisfaction = 60;
   
-  if(!auto){
-    const fixed = state.customer.done.length === state.customer.problem.steps.length;
-    $('#resTitle').textContent = fixed ? '🎉 تم الحل!' : '📴 انتهت المكالمة';
-    $('#resScore').textContent = fixed ? '+100' : '+10';
-    $('#resText').textContent = fixed ? 'الزبون راضي جداً.' : 'لم تحل المشكلة بالكامل.';
-    $('#result').classList.add('show');
+  playSound('ring');
+  state.ringInterval = setInterval(() => playSound('ring'), 1500);
+  
+  // تحديث واجهة الهاتف
+  updatePhoneUI();
+  
+  // إذا كان الكمبيوتر مفتوح، نحدثه
+  if (!$('#pc-screen').classList.contains('active')) {
+    toast('📞 مكالمة واردة! افتح الهاتف للرد.');
   }
 }
 
-/* INIT */
-$('#startBtn').onclick = () => {
-  try{ actx(); }catch(e){}
-  state.apiKey = $('#apiKeyInput').value.trim() || null;
-  $('#startScreen').style.opacity = 0;
-  setTimeout(()=>$('#startScreen').style.display = 'none', 1000);
-  $('#stage').classList.add('zoomed');
+function answerCall() {
+  if (state.phase !== 'ringing') return;
+  clearInterval(state.ringInterval);
+  state.phase = 'active';
+  playSound('click');
   
-  setTimeout(()=>{ 
-    addMsg('sys', 'نظام جاهز... في انتظار المكالمات');
-    // مكالمة عشوائية بعد 2-5 ثواني
-    setTimeout(startCall, rnd(2000,5000)); 
-  }, 1500);
-};
+  updatePhoneUI();
+  updatePCUI();
+  
+  // إضافة رسالة ترحيب
+  addMessage('sys', '📞 تم الرد على المكالمة');
+  setTimeout(() => {
+    addMessage('customer', state.customer.intro);
+    speak(state.customer.intro);
+  }, 800);
+}
 
-$('#answerBtn').onclick = answerCall;
-$('#send').onclick = sendMessage;
-$('#endBtn').onclick = () => endCall(false);
-$('#msg').addEventListener('keydown', e => { if(e.key === 'Enter') sendMessage(); });
-$('#resBtn').onclick = () => {
-  $('#result').classList.remove('show'); state.phase = 'idle';
-  chatEl.innerHTML = '<div class="msg sys">في انتظار المكالمة التالية...</div>';
-  // مكالمة جديدة عشوائية بعد 1-2 دقيقة (للواقعية)
-  setTimeout(startCall, rnd(45000, 90000)); 
-};
+function generateCustomer() {
+  const p = pick(PROBLEMS);
+  const c = {
+    name: pick(NAMES),
+    number: '09' + rnd(10000000, 99999999),
+    problem: p,
+    data: p.data(),
+    revealed: false,
+    look: { skin: pick(['#f3cba6','#e6b183','#d19a6a']), shirt: pick(['#2b5d8a','#3a6b4f']), bg: pick(['#1b3a5c','#1d4a3c']) }
+  };
+  c.intro = p.intro(c);
+  return c;
+}
 
-function clickSound(){ beep(1200,.03,'square',.03); }
-setInterval(()=>{ const d=new Date(); $('#clock').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }, 1000);
-renderTools();
+// ==========================================
+// 5. تحديث الواجهات
+// ==========================================
+function updateUI() {
+  updatePhoneUI();
+  updatePCUI();
+}
+
+function updatePhoneUI() {
+  const container = $('#phone-content');
+  if (state.phase === 'ringing') {
+    container.innerHTML = `
+      <div class="incoming-call">
+        <div class="caller-avatar">👤</div>
+        <div class="caller-name">${state.customer.name}</div>
+        <div class="caller-number">رقم مجهول</div>
+        <div class="call-actions">
+          <button class="btn-call btn-hang" onclick="endCall(true)">✖</button>
+          <button class="btn-call btn-answer" onclick="answerCall()">📞</button>
+        </div>
+      </div>
+    `;
+  } else if (state.phase === 'active') {
+    if (state.activeTab === 'calls') {
+      container.innerHTML = `
+        <div style="width:100%; display:flex; flex-direction:column; gap:15px;">
+          <div style="text-align:center; margin-bottom:20px;">
+            <div class="caller-avatar" style="margin:0 auto; width:80px; height:80px; font-size:30px;">👤</div>
+            <h3 style="margin-top:10px; color:#fff;">${state.customer.name}</h3>
+            <p style="color:#10b981; font-size:12px; margin-top:5px;">● متصل</p>
+          </div>
+          <div style="background:#1e293b; border-radius:12px; padding:15px; font-size:14px; line-height:1.6; color:#cbd5e1;">
+            ${state.chatHistory.length > 0 ? state.chatHistory[state.chatHistory.length-1].text : '...'}
+          </div>
+          <button class="btn-call btn-hang" style="width:100%; border-radius:12px; height:50px; margin-top:20px;" onclick="endCall(false)">إنهاء المكالمة</button>
+        </div>
+      `;
+    } else {
+      // تبويب المعلومات
+      container.innerHTML = `
+        <div style="width:100%; text-align:right; color:#cbd5e1; padding:10px;">
+          <h3 style="color:#38bdf8; margin-bottom:20px; border-bottom:1px solid #334155; padding-bottom:10px;">بيانات المشترك</h3>
+          <p style="margin-bottom:10px;"><strong>الاسم:</strong> ${state.customer.name}</p>
+          <p style="margin-bottom:10px;"><strong>الرقم:</strong> ${state.customer.revealed ? state.customer.number : '**********'}</p>
+          <p style="margin-bottom:10px;"><strong>المشكلة:</strong> ${state.customer.problem.title}</p>
+          <p style="margin-bottom:10px;"><strong>نوع المشكلة:</strong> ${state.customer.problem.isScam ? '⚠️ مشبوهة' : '✅ عادية'}</p>
+          <p style="margin-bottom:10px;"><strong>الرضا:</strong> ${state.satisfaction}%</p>
+        </div>
+      `;
+    }
+  } else {
+    container.innerHTML = `<div class="msg sys" style="color:#64748b;">لا توجد مكالمات حالياً...</div>`;
+  }
+}
+
+function updatePCUI() {
+  // تحديث الأدوات
+  const toolsContainer = $('#pc-tools');
+  toolsContainer.innerHTML = '<h3>أدوات النظام</h3>';
+  TOOLS.forEach(tool => {
+    const btn = document.createElement('button');
+    btn.className = 'pc-tool-btn';
+    if (state.doneTools.includes(tool.id)) btn.classList.add('done');
+    btn.innerHTML = `<span>${tool.icon}</span> <span>${tool.name}</span>`;
+    btn.onclick = () => handleToolClick(tool);
+    btn.disabled = state.phase !== 'active' || !state.customer.revealed;
+    if (btn.disabled) btn.style.opacity = '0.5';
+    toolsContainer.appendChild(btn);
+  });
+
+  // تحديث الدردشة
+  const chat = $('#chat-messages');
+  chat.innerHTML = '';
+  if (state.phase !== 'active') {
+    chat.innerHTML = '<div class="msg sys">لا توجد مكالمة نشطة. ارد على الهاتف أولاً.</div>';
+    return;
+  }
+  
+  state.chatHistory.forEach(msg => {
+    const div = document.createElement('div');
+    div.className = `msg ${msg.role === 'customer' ? 'cust' : msg.role === 'agent' ? 'agent' : 'sys'}`;
+    div.textContent = msg.text;
+    chat.appendChild(div);
+  });
+  chat.scrollTop = chat.scrollHeight;
+  $('#pc-status').textContent = `متصل مع: ${state.customer.name} | الرضا: ${state.satisfaction}%`;
+}
+
+function addMessage(role, text) {
+  state.chatHistory.push({ role, text });
+  if (role === 'customer') speak(text);
+  updatePCUI();
+  updatePhoneUI();
+}
+
+// ==========================================
+// 6. الشاشات المنبثقة (الهاتف والكمبيوتر)
+// ==========================================
+function openPC() {
+  if (!state.customer && state.phase === 'waiting') {
+    toast('لا توجد مكالمة نشطة حالياً. انتظر اتصال الزبون.');
+  }
+  $('#pc-screen').classList.add('active');
+  $('#office').classList.add('blurred');
+  updatePCUI();
+}
+
+function closePC() {
+  $('#pc-screen').classList.remove('active');
+  if (!$('#phone-screen').classList.contains('active')) {
+    $('#office').classList.remove('blurred');
+  }
+}
+
+function openPhone() {
+  $('#phone-screen').classList.add('active');
+  $('#office').classList.add('blurred');
+  updatePhoneUI();
+}
+
+function closePhone() {
+  $('#phone-screen').classList.remove('active');
+  if (!$('#pc-screen').classList.contains('active')) {
+    $('#office').classList.remove('blurred');
+  }
+}
+
+function switchTab(tab) {
+  state.activeTab = tab;
+  document.querySelectorAll('.phone-tab').forEach(t => t.classList.remove('active'));
+  event.target.closest('.phone-tab').classList.add('active');
+  updatePhoneUI();
+}
+
+// ==========================================
+// 7. أدوات الكمبيوتر
+// ==========================================
+function handleToolClick(tool) {
+  if (!state.customer) return;
+  playSound('click');
+  
+  if (tool.fields) {
+    // فتح مودال
+    $('#modal-title').textContent = tool.name;
+    const inputs = $('#modal-inputs'); inputs.innerHTML = '';
+    tool.fields.forEach(f => {
+      inputs.innerHTML += `<label style="display:block; margin-bottom:5px; color:#94a3b8; font-size:12px;">${f.label}</label>
+                           <input type="${f.type}" id="input-${f.key}" placeholder="${f.label}">`;
+    });
+    $('#modal').classList.add('active');
+    window.currentTool = tool;
+  } else {
+    // تنفيذ مباشر
+    executeTool(tool.id, {});
+  }
+}
+
+function submitModal() {
+  const tool = window.currentTool;
+  const vals = {};
+  tool.fields.forEach(f => {
+    vals[f.key] = document.getElementById(`input-${f.key}`).value.trim();
+  });
+  closeModal();
+  executeTool(tool.id, vals);
+}
+
+function closeModal() {
+  $('#modal').classList.remove('active');
+  window.currentTool = null;
+}
+
+function executeTool(toolId, params) {
+  const c = state.customer;
+  
+  // إذا ما سأل عن الرقم
+  if (!c.revealed) {
+    toast('⚠️ يجب أن تسأل الزبون عن رقمه أولاً!');
+    playSound('error');
+    return;
+  }
+  
+  // هل الأداة مفيدة لهذه المشكلة؟
+  if (!c.problem.steps.includes(toolId)) {
+    toast('❌ هذا الإجراء غير مفيد للمشكلة الحالية');
+    playSound('error');
+    state.satisfaction -= 5;
+    addMessage('sys', '⚠️ محاولة إجراء غير مفيد');
+    return;
+  }
+  
+  if (state.doneTools.includes(toolId)) {
+    toast('تم تنفيذ هذا الإجراء مسبقاً');
+    return;
+  }
+  
+  // التحقق من المدخلات
+  if (toolId === 'recharge' && Number(params.amount) !== c.data.amount) {
+    toast('❌ المبلغ غير مطابق لما طلبه الزبون!'); playSound('error'); return;
+  }
+  if (toolId === 'transfer' && (Number(params.amount) !== c.data.amount || params.recipient !== c.data.recipient)) {
+    toast('❌ بيانات التحويل غير صحيحة!'); playSound('error'); return;
+  }
+
+  // نجاح الإجراء
+  state.doneTools.push(toolId);
+  state.satisfaction = Math.min(100, state.satisfaction + 15);
+  playSound('success');
+  addMessage('sys', `✅ تم تنفيذ: ${TOOLS.find(t => t.id === toolId).name}`);
+  updatePCUI();
+
+  // هل اكتملت الخطوات؟
+  if (c.problem.steps.every(s => state.doneTools.includes(s))) {
+    setTimeout(() => {
+      addMessage('sys', '🎉 تم حل المشكلة بالكامل!');
+      if (c.problem.isScam) {
+        addMessage('customer', c.problem.scamReact());
+      } else {
+        addMessage('customer', 'شكراً كتير! الله يعطيك العافية، انحلت المشكلة.');
+      }
+      setTimeout(() => endCall(false), 3000);
+    }, 1000);
+  } else {
+    addMessage('customer', pick(['طيب... وبعدين؟', 'شو الخطوة التانية؟', 'أنا مستعجل شوي.']));
+  }
+}
+
+// ==========================================
+// 8. الدردشة (الرسائل)
+// ==========================================
+async function sendMessage() {
+  const input = $('#chat-input-field');
+  const text = input.value.trim();
+  if (!text || state.phase !== 'active') return;
+  
+  input.value = '';
+  addMessage('agent', text);
+  playSound('click');
+  
+  // التحقق من طلب الرقم
+  if (text.includes('رقم') || text.includes('نمرة') || text.includes('حسابك')) {
+    state.customer.revealed = true;
+    addMessage('customer', `أكيد، رقمي هو ${state.customer.number}`);
+    updatePCUI();
+    return;
+  }
+  
+  // إذا كان الزبون نصاب
+  if (state.customer.problem.isScam && text.includes('تعويض')) {
+    addMessage('customer', 'إنت نصاب! ما رح تعطيني شي! بدي مديرك!');
+    state.satisfaction -= 20;
+    return;
+  }
+
+  // محرك ذكاء اصطناعي محلي بسيط للردود
+  await sleep(800);
+  let reply = '';
+  if (state.customer.problem.isScam) {
+    reply = pick(['أنا بدي حقي هلأ!', 'ليش عم تماطلني؟', 'إذا ما عوضتوني بروح عالشرطة!']);
+  } else {
+    reply = pick(['طيب، وين وصلنا؟', 'فهمت، بس أنا بدي حل.', 'يا ريت تعجل شوي.']);
+  }
+  addMessage('customer', reply);
+}
+
+function handleEnter(e) {
+  if (e.key === 'Enter') sendMessage();
+}
+
+// ==========================================
+// 9. إنهاء المكالمة
+// ==========================================
+function endCall(abandoned) {
+  if (state.phase !== 'active' && state.phase !== 'ringing') return;
+  
+  clearInterval(state.ringInterval);
+  
+  if (abandoned) {
+    addMessage('sys', '📴 الزبون أغلق الخط');
+  } else {
+    addMessage('sys', '📴 انتهت المكالمة');
+  }
+  
+  state.phase = 'waiting';
+  state.customer = null;
+  state.doneTools = [];
+  state.chatHistory = [];
+  
+  updatePCUI();
+  updatePhoneUI();
+  
+  // إغلاق الشاشات
+  closePC();
+  closePhone();
+  
+  // جدولة مكالمة جديدة بعد دقيقة إلى دقيقتين
+  const delay = rnd(60000, 120000);
+  toast('في انتظار المكالمة التالية...');
+  scheduleCall(delay);
+}
+
+// ==========================================
+// 10. التهيئة
+// ==========================================
+$('#start-btn').onclick = initGame;
+
+// الساعة
+setInterval(() => {
+  const d = new Date();
+  $('#phone-time').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}, 1000);
+
 </script>
 </body>
 </html>
