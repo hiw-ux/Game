@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>سيريتل — مركز خدمة العملاء</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#05070c;font-family:'Cairo',system-ui,sans-serif;color:#e8eefb;user-select:none}
+#viewport{position:fixed;inset:0;display:grid;place-items:center}
+#stage{width:1280px;height:800px;position:relative;transform-origin:center center}
+
+/* ================= ROOM ================= */
+.room{position:absolute;inset:0;overflow:hidden;background:#0b0f16}
+.wall{position:absolute;inset:0 0 300px 0;
+  background:radial-gradient(900px 500px at 50% -15%,#31415f 0%,#18222f 55%,#0b1017 100%);}
+.wall::after{content:'';position:absolute;inset:0;opacity:.5;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 2px,transparent 2px 140px);}
+.neon{position:absolute;left:50%;top:26px;transform:translateX(-50%);font-weight:800;letter-spacing:6px;
+  font-size:13px;color:#37e0c0;opacity:.35;text-shadow:0 0 18px #37e0c0}
+.floor{position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(#0e1520,#06090e)}
+.desk-top{position:absolute;left:10px;right:10px;top:520px;height:120px;
+  background:linear-gradient(#6a4b36,#3b2a1d);clip-path:polygon(2.4% 0,97.6% 0,100% 100%,0 100%);
+  box-shadow:0 -14px 50px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,220,180,.25)}
+.desk-front{position:absolute;left:0;right:0;top:638px;height:162px;
+  background:linear-gradient(#2b1f16,#120c08);box-shadow:inset 0 8px 24px rgba(0,0,0,.6)}
+.desk-front::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;
+  background:linear-gradient(90deg,transparent,#ffcf9a55,transparent)}
+
+/* ================= CUSTOMER HOLOGRAM ================= */
+.cust-panel{position:absolute;left:18px;top:56px;width:286px;height:340px;border-radius:18px;
+  background:linear-gradient(160deg,rgba(30,44,66,.92),rgba(12,18,28,.96));
+  border:1px solid rgba(90,220,255,.28);box-shadow:0 0 40px rgba(40,180,255,.18),0 20px 50px rgba(0,0,0,.6);
+  padding:14px;display:flex;flex-direction:column;gap:10px;
+  opacity:0;transform:translateY(20px) scale(.94);transition:.45s cubic-bezier(.2,1.4,.4,1);pointer-events:none}
+.cust-panel.show{opacity:1;transform:translateY(0) scale(1)}
+.cust-panel::after{content:'';position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(70,230,255,.10),transparent 40%);
+  animation:holo 3.2s ease-in-out infinite}
+@keyframes holo{0%,100%{opacity:.4}50%{opacity:.9}}
+.cp-avatar{width:100%;height:170px;border-radius:12px;overflow:hidden;background:#0d1520;
+  border:1px solid rgba(90,220,255,.2);position:relative}
+.cp-avatar svg{width:100%;height:100%;display:block}
+.cp-name{font-weight:800;font-size:15px;text-align:center}
+.cp-mood{text-align:center;font-size:11px;color:#8fb4d8;margin-top:-6px}
+.cp-sat{height:9px;border-radius:9px;background:#101a26;overflow:hidden;border:1px solid #1e2c3d}
+.cp-sat-fill{height:100%;width:60%;border-radius:9px;transition:.5s ease;
+  background:linear-gradient(90deg,#ff4d4d,#ffb020,#3ddc84)}
+.cp-tag{text-align:center;font-size:10px;color:#4fd1c5;letter-spacing:.5px}
+.mouth{transition:ry .08s}
+.speaking .mouth{animation:talk .28s infinite alternate}
+@keyframes talk{from{ry:3}to{ry:11}}
+.eye{animation:blink 4.5s infinite}
+@keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(.1)}}
+
+/* ================= MONITOR ================= */
+.monitor{position:absolute;left:320px;top:70px;width:610px;height:450px;z-index:5}
+.monitor-bezel{position:absolute;inset:0;border-radius:16px;padding:13px 13px 26px;
+  background:linear-gradient(160deg,#39445a,#141a24 60%,#0c1119);
+  box-shadow:0 34px 70px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.12), 0 0 0 1px #000;
+  transform:perspective(1500px) rotateY(-5deg) rotateX(1.5deg)}
+.monitor-bezel::after{content:'';position:absolute;left:50%;bottom:8px;transform:translateX(-50%);
+  width:70px;height:5px;border-radius:5px;background:#0a0d12;box-shadow:inset 0 1px 2px #000}
+.screen{width:100%;height:100%;border-radius:7px;overflow:hidden;display:flex;flex-direction:column;
+  background:linear-gradient(#0b1420,#070c14);box-shadow:inset 0 0 60px rgba(0,180,255,.07)}
+.scr-top{height:26px;display:flex;align-items:center;gap:6px;padding:0 10px;
+  background:linear-gradient(#131d2b,#0c141f);border-bottom:1px solid #16202e;font-size:10px;color:#7fa3c7}
+.dot{width:7px;height:7px;border-radius:50%}
+.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+.scr-title{margin-inline-start:8px;font-weight:600;color:#9fc4e0}
+.scr-clock{margin-inline-start:auto;color:#4fd1c5;font-weight:600;letter-spacing:1px}
+.cust-strip{padding:7px 10px;background:#0e1926;border-bottom:1px solid #16202e;display:flex;
+  justify-content:space-between;align-items:center;font-size:11px}
+.cs-name{font-weight:800;color:#dfe9f5}
+.cs-sub{color:#6f8fae;font-size:10px}
+.chat{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:7px;
+  scrollbar-width:thin;scrollbar-color:#1e2c3d transparent}
+.chat::-webkit-scrollbar{width:6px}
+.chat::-webkit-scrollbar-thumb{background:#1e2c3d;border-radius:6px}
+.msg{max-width:82%;padding:7px 10px;border-radius:11px;font-size:11.5px;line-height:1.55;
+  animation:pop .25s ease;word-break:break-word}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.customer{align-self:flex-start;background:#182b3d;border:1px solid #1f3a52;color:#cfe4f5;
+  border-start-start-radius:3px}
+.msg.agent{align-self:flex-end;background:linear-gradient(#1d6b52,#14503e);color:#e6fff6;
+  border-start-end-radius:3px}
+.msg.sys{align-self:center;background:#141d29;border:1px dashed #2a3d52;color:#7fd1b9;font-size:10px;
+  font-family:monospace}
+.msg.typing{color:#6f8fae;font-style:italic}
+.quick{display:flex;gap:5px;padding:0 8px 6px;flex-wrap:wrap}
+.chip{font-size:9.5px;padding:4px 8px;border-radius:20px;background:#12202e;border:1px solid #22374c;
+  color:#8fb4d8;cursor:pointer;transition:.2s;white-space:nowrap}
+.chip:hover{background:#1a3247;color:#cfe4f5;border-color:#37e0c0}
+.composer{display:flex;gap:6px;padding:8px;background:#0a121c;border-top:1px solid #16202e}
+.composer input{flex:1;background:#101c28;border:1px solid #1e3044;border-radius:8px;padding:8px 11px;
+  color:#e8eefb;font-family:inherit;font-size:11.5px;outline:none}
+.composer input:focus{border-color:#37e0c0;box-shadow:0 0 0 2px rgba(55,224,192,.15)}
+.composer button{border:none;border-radius:8px;padding:0 14px;font-family:inherit;font-weight:800;
+  font-size:11px;cursor:pointer;transition:.2s}
+#send{background:linear-gradient(#2ee6a8,#12a97c);color:#04241a}
+#send:hover{filter:brightness(1.12)}
+#endBtn{background:linear-gradient(#ff6b6b,#c92a2a);color:#fff}
+#endBtn:hover{filter:brightness(1.12)}
+
+/* ================= PHONE ================= */
+.phone{position:absolute;left:34px;top:398px;width:256px;height:118px;z-index:6}
+.phone-body{position:absolute;inset:0;border-radius:14px;
+  background:linear-gradient(160deg,#2b3444,#12171f);box-shadow:0 18px 40px rgba(0,0,0,.7),
+  inset 0 1px 0 rgba(255,255,255,.12),0 0 0 1px #000;
+  transform:perspective(900px) rotateX(14deg) rotateZ(-2deg);
+  display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+.phone-lcd{font-size:10px;color:#5ce0b0;font-family:monospace;letter-spacing:.5px;
+  background:#08120e;border:1px solid #173a2c;border-radius:6px;padding:6px 8px;min-width:96px;text-align:center}
+.phone-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-family:inherit;
+  font-weight:800;font-size:12px;color:#fff;transition:.25s;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+.phone-btn.answer{background:radial-gradient(circle at 35% 30%,#4ef0a6,#0f9c6c)}
+.phone-btn.hang{background:radial-gradient(circle at 35% 30%,#ff7b7b,#b81f1f)}
+.phone-btn:disabled{opacity:.28;cursor:not-allowed}
+.phone-btn:not(:disabled):hover{transform:scale(1.08)}
+.receiver{position:absolute;left:-6px;top:-16px;width:180px;height:26px;border-radius:14px;
+  background:linear-gradient(#3c4757,#1a212b);box-shadow:0 8px 18px rgba(0,0,0,.6)}
+.ringing{animation:ringsh .35s infinite}
+@keyframes ringsh{0%,100%{transform:perspective(900px) rotateX(14deg) rotateZ(-2deg) translateX(0)}
+  25%{transform:perspective(900px) rotateX(14deg) rotateZ(-1deg) translateX(-4px)}
+  75%{transform:perspective(900px) rotateX(14deg) rotateZ(-3deg) translateX(4px)}}
+.ring-glow{position:absolute;inset:-14px;border-radius:22px;pointer-events:none;opacity:0;
+  background:radial-gradient(circle,rgba(60,230,180,.35),transparent 70%);transition:.3s}
+.ring-glow.on{opacity:1;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.12);opacity:1}}
+
+/* ================= TABLET ================= */
+.tablet{position:absolute;left:938px;top:300px;width:312px;height:222px;z-index:6}
+.tablet-body{position:absolute;inset:0;border-radius:12px;padding:8px;
+  background:linear-gradient(160deg,#39445a,#0f141c);
+  box-shadow:0 24px 50px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.14),0 0 0 1px #000;
+  transform:perspective(1100px) rotateY(-16deg) rotateX(9deg) rotateZ(-3deg)}
+.tablet-screen{width:100%;height:100%;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;
+  background:linear-gradient(#0a1420,#070d15)}
+.tt-title{font-size:9.5px;font-weight:800;color:#4fd1c5;padding:5px 8px;background:#0d1926;
+  border-bottom:1px solid #16202e;letter-spacing:.5px;display:flex;justify-content:space-between}
+.tt-title span:last-child{color:#5f7f9e;font-weight:400}
+.tools{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px;align-content:start}
+.tool{display:flex;align-items:center;gap:5px;padding:0 6px;height:31px;border-radius:6px;
+  background:linear-gradient(#14212e,#0e1823);border:1px solid #1e3044;color:#a8c8e0;
+  font-size:9.5px;font-family:inherit;cursor:pointer;transition:.16s;text-align:right;font-weight:600}
+.tool:hover:not(:disabled){background:#1b3448;border-color:#37e0c0;color:#eafff8;transform:translateY(-1px)}
+.tool:active:not(:disabled){transform:translateY(0) scale(.97)}
+.tool:disabled{opacity:.32;cursor:not-allowed}
+.tool.done{border-color:#2ee6a8;background:#0e2a22;color:#5ff0bb}
+.tool .ico{font-size:12px}
+
+/* decor */
+.mug{position:absolute;left:862px;top:462px;width:34px;height:44px;border-radius:4px 4px 12px 12px;
+  background:linear-gradient(#f2f2f2,#c9cfd6);box-shadow:0 10px 18px rgba(0,0,0,.6)}
+.mug::before{content:'';position:absolute;right:-12px;top:9px;width:14px;height:20px;border:4px solid #dfe4ea;
+  border-left:none;border-radius:0 10px 10px 0}
+.mug::after{content:'';position:absolute;left:4px;right:4px;top:2px;height:6px;border-radius:50%;background:#4a2d1a}
+.plant{position:absolute;left:846px;top:392px;width:56px;height:74px}
+.plant .pot{position:absolute;bottom:0;left:8px;width:40px;height:30px;border-radius:4px 4px 10px 10px;
+  background:linear-gradient(#a0522d,#6b3418)}
+.plant .leaf{position:absolute;bottom:24px;left:50%;width:10px;height:52px;border-radius:50% 50% 40% 40%;
+  background:linear-gradient(#3ddc84,#1a7a4a);transform-origin:bottom center;box-shadow:0 0 14px rgba(61,220,132,.35)}
+.plant .leaf:nth-child(2){transform:translateX(-50%) rotate(-24deg);height:44px}
+.plant .leaf:nth-child(3){transform:translateX(-50%) rotate(24deg);height:48px}
+.plant .leaf:nth-child(4){transform:translateX(-50%) rotate(0deg);height:56px}
+
+/* ================= OVERLAYS ================= */
+#startScreen{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;text-align:center;padding:20px;
+  background:radial-gradient(900px 600px at 50% 30%,#16324a,#05080e 70%)}
+#startScreen h1{font-size:44px;font-weight:800;letter-spacing:8px;
+  background:linear-gradient(90deg,#2ee6a8,#4fc3f7,#2ee6a8);-webkit-background-clip:text;background-clip:text;
+  color:transparent;filter:drop-shadow(0 0 24px rgba(46,230,168,.35))}
+#startScreen p{color:#8fb4d8;font-size:14px;max-width:520px;line-height:1.8}
+#apiKeyInput{width:min(460px,90vw);padding:13px 16px;border-radius:12px;border:1px solid #23415a;
+  background:#0b1824;color:#e8eefb;font-family:inherit;font-size:13px;outline:none;text-align:left;direction:ltr}
+#apiKeyInput:focus{border-color:#2ee6a8;box-shadow:0 0 0 3px rgba(46,230,168,.12)}
+#startBtn{margin-top:6px;padding:14px 52px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;
+  font-weight:800;font-size:16px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c);
+  box-shadow:0 12px 34px rgba(46,230,168,.3);transition:.2s}
+#startBtn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.hint{font-size:11px!important;color:#5f7f9e!important;max-width:480px}
+
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;
+  background:#132434;border:1px solid #2ee6a8;color:#c9fff0;padding:10px 20px;border-radius:30px;
+  font-size:12.5px;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+#modal{position:fixed;inset:0;z-index:250;display:none;place-items:center;background:rgba(3,6,10,.75);
+  backdrop-filter:blur(4px)}
+#modal.show{display:grid}
+.modal-box{width:min(400px,92vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
+  border-radius:16px;padding:20px;box-shadow:0 30px 70px rgba(0,0,0,.8);animation:pop .25s}
+.modal-box h3{font-size:15px;margin-bottom:14px;color:#4fd1c5}
+.fld{display:block;margin-bottom:11px}
+.fld span{display:block;font-size:11px;color:#8fb4d8;margin-bottom:5px}
+.fld input,.fld select{width:100%;padding:10px 12px;border-radius:9px;border:1px solid #1e3044;
+  background:#0a1520;color:#e8eefb;font-family:inherit;font-size:12.5px;outline:none}
+.fld input:focus,.fld select:focus{border-color:#2ee6a8}
+.modal-actions{display:flex;gap:8px;margin-top:16px}
+.modal-actions button{flex:1;padding:11px;border-radius:9px;border:none;font-family:inherit;font-weight:800;
+  font-size:12.5px;cursor:pointer;transition:.2s}
+#modalOk{background:linear-gradient(#2ee6a8,#12a97c);color:#04241a}
+#modalCancel{background:#1a2634;color:#8fb4d8;border:1px solid #24384c}
+.modal-actions button:hover{filter:brightness(1.12)}
+
+#result{position:fixed;inset:0;z-index:260;display:none;place-items:center;background:rgba(3,6,10,.82);
+  backdrop-filter:blur(5px)}
+#result.show{display:grid}
+.result-box{width:min(380px,92vw);background:linear-gradient(#132030,#0b131d);border:1px solid #24405a;
+  border-radius:18px;padding:26px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.8);animation:pop .3s}
+.result-box h2{font-size:22px;margin-bottom:6px}
+.result-box .score{font-size:44px;font-weight:800;color:#2ee6a8;margin:10px 0;text-shadow:0 0 24px rgba(46,230,168,.4)}
+.result-box p{font-size:12.5px;color:#8fb4d8;line-height:1.8}
+.result-box button{margin-top:18px;padding:12px 40px;border-radius:11px;border:none;cursor:pointer;
+  font-family:inherit;font-weight:800;font-size:13.5px;color:#04241a;background:linear-gradient(#2ee6a8,#12a97c)}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+    <div class="room">
+      <div class="wall"></div>
+      <div class="neon">SYRIATEL — CALL CENTER</div>
+      <div class="floor"></div>
+
+      <div class="desk-top"></div>
+      <div class="desk-front"></div>
+
+      <!-- CUSTOMER HOLOGRAM -->
+      <div class="cust-panel" id="custPanel">
+        <div class="cp-avatar" id="cpAvatar"></div>
+        <div class="cp-name" id="cpName">—</div>
+        <div class="cp-mood" id="cpMood">—</div>
+        <div class="cp-sat"><div class="cp-sat-fill" id="cpSat"></div></div>
+        <div class="cp-tag" id="cpTag">—</div>
+      </div>
+
+      <!-- MONITOR -->
+      <div class="monitor">
+        <div class="monitor-bezel">
+          <div class="screen">
+            <div class="scr-top">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="scr-title">Syriatel CRM</span>
+              <span class="scr-clock" id="clock">--:--</span>
+            </div>
+            <div class="cust-strip">
+              <div class="cs-name" id="csName">لا يوجد مكالمة</div>
+              <div class="cs-sub" id="csSub">في انتظار اتصال...</div>
+            </div>
+            <div class="chat" id="chat"></div>
+            <div class="quick" id="quick"></div>
+            <div class="composer">
+              <input id="msg" placeholder="اكتب ردك للزبون..." autocomplete="off">
+              <button id="send">إرسال</button>
+              <button id="endBtn" title="إنهاء المكالمة">إنهاء</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHONE -->
+      <div class="phone" id="phone">
+        <div class="ring-glow" id="ringGlow"></div>
+        <div class="receiver"></div>
+        <div class="phone-body" id="phoneBody">
+          <div class="phone-lcd" id="phoneLcd">لا مكالمات</div>
+          <button class="phone-btn answer" id="answerBtn" disabled>رد</button>
+        </div>
+      </div>
+
+      <!-- TABLET -->
+      <div class="tablet">
+        <div class="tablet-body">
+          <div class="tablet-screen">
+            <div class="tt-title"><span>أدوات النظام</span><span id="toolCount">0/0</span></div>
+            <div class="tools" id="tools"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DECOR -->
+      <div class="plant"><div class="leaf"></div><div class="leaf"></div><div class="leaf"></div><div class="pot"></div></div>
+      <div class="mug"></div>
+    </div>
+  </div>
+</div>
+
+<div id="startScreen">
+  <h1>سيريتل</h1>
+  <p>مركز خدمة العملاء — أنت الموظف. رُد على الهاتف، استخدم أدوات النظام، وحل مشاكل الزبائن.<br>
+  كل زبون شخصية مختلفة، مشكلة مختلفة، وصورة متحركة وصوت.</p>
+  <input id="apiKeyInput" placeholder="Gemini API Key (اختياري - للذكاء الاصطناعي الحقيقي)" />
+  <button id="startBtn">ابدأ الدوام</button>
+  <p class="hint">بدون مفتاح: نمط محلي ذكي. مع المفتاح: الزبون يفهم كلامك فعلياً ويرد بحرية عبر Gemini.</p>
+</div>
+
+<div id="toast"></div>
+
+<div id="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button id="modalOk">تنفيذ</button>
+      <button id="modalCancel">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="result">
+  <div class="result-box">
+    <h2 id="resTitle">انتهت المكالمة</h2>
+    <div class="score" id="resScore">0</div>
+    <p id="resText"></p>
+    <button id="resBtn">المكالمة التالية</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   HELPERS
+============================================================ */
+const $ = s => document.querySelector(s);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const rnd = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const clamp = (v,a=0,b=100) => Math.max(a,Math.min(b,v));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* ============================================================
+   STATE
+============================================================ */
+const state = {
+  phase:'idle',          // idle | ringing | active | ended
+  apiKey:null,
+  customer:null,
+  history:[],
+  sat:60,
+  voiceOn:true,
+  warnedAI:false,
+  stats:{calls:0, fixed:0, score:0},
+  stall:0
+};
+
+/* ============================================================
+   STAGE FIT
+============================================================ */
+function fitStage(){
+  const s = Math.min(window.innerWidth/1280, window.innerHeight/800);
+  $('#stage').style.transform = 'scale(' + s + ')';
+}
+window.addEventListener('resize', fitStage); fitStage();
+
+/* ============================================================
+   AUDIO (WebAudio SFX)
+============================================================ */
+let AC = null;
+function actx(){
+  if(!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if(AC.state === 'suspended') AC.resume();
+  return AC;
+}
+function beep(freq=880, dur=.08, type='sine', vol=.05){
+  try{
+    const a = actx(), o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, a.currentTime + dur);
+    o.connect(g); g.connect(a.destination);
+    o.start(); o.stop(a.currentTime + dur);
+  }catch(e){}
+}
+function clickSound(){ beep(1200,.04,'square',.03); }
+function successSound(){ beep(880,.1,'sine',.06); setTimeout(()=>beep(1318,.16,'sine',.06),90); }
+function errorSound(){ beep(180,.18,'sawtooth',.05); }
+
+let ringTimer = null;
+function startRing(){
+  if(ringTimer) return;
+  const ring = () => {
+    beep(1046,.11,'sine',.05);
+    setTimeout(()=>beep(1396,.11,'sine',.05),130);
+    setTimeout(()=>beep(1046,.11,'sine',.05),300);
+  };
+  ring();
+  ringTimer = setInterval(ring, 1700);
+}
+function stopRing(){ clearInterval(ringTimer); ringTimer = null; }
+
+/* ============================================================
+   TTS
+============================================================ */
+let voices = [];
+function loadVoices(){ try{ voices = speechSynthesis.getVoices() || []; }catch(e){ voices = []; } }
+if('speechSynthesis' in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+let speakToken = 0;
+function speak(text, pitch=1, rate=1){
+  if(!state.voiceOn || !('speechSynthesis' in window)) return;
+  const myToken = ++speakToken;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const ar = voices.filter(v => /^ar/i.test(v.lang));
+    const v = ar.find(x => /sy|sa|eg|jo|lb|ae/i.test(x.lang)) || ar[0];
+    if(v) u.voice = v;
+    u.lang = v ? v.lang : 'ar-SA';
+    u.pitch = pitch; u.rate = rate; u.volume = 1;
+    setSpeaking(true);
+    u.onend = () => { if(myToken === speakToken) setSpeaking(false); };
+    u.onerror = () => { if(myToken === speakToken) setSpeaking(false); };
+    speechSynthesis.speak(u);
+    // safety
+    const dur = Math.min(20000, 900 + text.length * 85);
+    setTimeout(()=>{ if(myToken === speakToken) setSpeaking(false); }, dur);
+  }catch(e){ setSpeaking(false); }
+}
+function setSpeaking(on){
+  const p = $('#custPanel');
+  if(on) p.classList.add('speaking'); else p.classList.remove('speaking');
+}
+
+/* ============================================================
+   AVATAR GENERATOR
+============================================================ */
+function makeLook(){
+  return {
+    skin: pick(['#f3cba6','#e6b183','#d19a6a','#b57a4a','#8d5a33','#f7dcc2']),
+    hair: pick(['#1c1c1c','#2b1b12','#4a2c17','#6b4a2b','#8a8a8a','#3a2418']),
+    shirt: pick(['#2b5d8a','#3a6b4f','#7a4a6b','#8a5a2b','#4a4a6b','#2b6b6b','#6b2b2b']),
+    bg1: pick(['#1b3a5c','#1d4a3c','#3c2a4a','#4a3a1c']),
+    glasses: Math.random() < .3,
+    beard: Math.random() < .35,
+    female: Math.random() < .45,
+    hairStyle: rnd(0,2)
+  };
+}
+function avatarSVG(look, name){
+  const L = look;
+  const hairTop = L.female
+    ? `<path d="M52 88 Q50 34 100 30 Q150 34 148 88 Q148 60 100 52 Q52 60 52 88 Z" fill="${L.hair}"/>
+       <path d="M50 84 Q40 130 44 168 L62 168 Q56 124 60 92 Z" fill="${L.hair}"/>
+       <path d="M150 84 Q160 130 156 168 L138 168 Q144 124 140 92 Z" fill="${L.hair}"/>`
+    : `<path d="M56 82 Q54 40 100 36 Q146 40 144 82 Q138 62 100 58 Q62 62 56 82 Z" fill="${L.hair}"/>`;
+  const beard = L.beard
+    ? `<path d="M70 118 Q100 160 130 118 Q128 148 100 152 Q72 148 70 118 Z" fill="${L.hair}" opacity=".85"/>`
+    : '';
+  const glasses = L.glasses
+    ? `<g stroke="#111" stroke-width="3" fill="none" opacity=".85">
+         <circle cx="84" cy="96" r="14"/><circle cx="116" cy="96" r="14"/>
+         <line x1="98" y1="96" x2="102" y2="96"/></g>`
+    : '';
+  return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="bg_${name}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${L.bg1}"/><stop offset="1" stop-color="#0a1119"/>
+      </linearGradient>
+      <radialGradient id="gl_${name}" cx="50%" cy="30%">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="200" height="200" fill="url(#bg_${name})"/>
+    <rect width="200" height="200" fill="url(#gl_${name})"/>
+    <path d="M28 200 Q52 148 100 148 Q148 148 172 200 Z" fill="${L.shirt}"/>
+    <rect x="88" y="126" width="24" height="28" rx="8" fill="${L.skin}" opacity=".85"/>
+    <ellipse cx="100" cy="96" rx="46" ry="54" fill="${L.skin}"/>
+    <ellipse cx="100" cy="96" rx="46" ry="54" fill="#000" opacity=".04"/>
+    ${hairTop}
+    <ellipse class="eye" cx="84" cy="96" rx="5.5" ry="6.5" fill="#20242b"/>
+    <ellipse class="eye" cx="116" cy="96" rx="5.5" ry="6.5" fill="#20242b"/>
+    <circle cx="86" cy="94" r="1.8" fill="#fff" opacity=".9"/>
+    <circle cx="118" cy="94" r="1.8" fill="#fff" opacity=".9"/>
+    <path d="M74 80 Q84 74 94 80" stroke="${L.hair}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <path d="M106 80 Q116 74 126 80" stroke="${L.hair}" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="100" cy="106" rx="4" ry="5" fill="${L.skin}" opacity=".5"/>
+    ${beard}
+    <ellipse class="mouth" cx="100" cy="122" rx="12" ry="4" fill="#7a3540"/>
+    ${glasses}
+  </svg>`;
+}
+
+/* ============================================================
+   DATA
+============================================================ */
+const FIRST = ['أحمد','ليلى','سمير','رنا','خالد','نور','مازن','سلمى','فادي','هبة','جورج','ريم','بشار','لينا','عمر','دينا','طارق','ميرا','يوسف','غادة','وليد','سارة','إياد','جمانة'];
+const LAST = ['الحلبي','الشامي','القاسم','درويش','العلي','الحموي','الخطيب','الرفاعي','حداد','نجار','صالح','بركات','العبد','سليمان','الزين','الأحمد','المصري','السلطان'];
+
+const PERSONALITIES = [
+  {id:'calm',  name:'هادئ',    desc:'يتكلم بهدوء وبصبر',       pitch:1.00, rate:0.95, patience:1.3},
+  {id:'angry', name:'غاضب',    desc:'متضايق وسريع الانفعال',   pitch:0.82, rate:1.15, patience:0.6},
+  {id:'elder', name:'مسن',     desc:'كبير بالسن، يتكلم ببطء',  pitch:0.80, rate:0.78, patience:1.0},
+  {id:'young', name:'شاب',     desc:'شاب، يتكلم بسرعة',        pitch:1.22, rate:1.15, patience:1.1},
+  {id:'busy',  name:'مستعجل',  desc:'عندو شغل وما عندو وقت',   pitch:1.10, rate:1.25, patience:0.55},
+  {id:'polite',name:'مؤدب',    desc:'لطيف جداً ويشكر كثيراً',  pitch:1.05, rate:1.00, patience:1.4}
+];
+
+const PACKAGES = ['باقة الشباب','باقة العائلة','باقة الأعمال','باقة الإنترنت اللامحدود'];
+
+const PROBLEMS = [
+  {
+    id:'recharge', title:'شحن رصيد',
+    data: () => ({ amount: pick([5000,10000,15000,20000,25000,30000,50000]) }),
+    intro: c => `ألو؟ مرحبا، أنا ${c.name}. بدي اشحن رصيدي بمبلغ ${c.data.amount} ليرة، بس ما عندي تطبيق ولا بطاقة. فيك تعمليها إنت؟`,
+    steps:['lookup','recharge'],
+    fix: () => `وصل الرصيد! شكراً كتير، الله يعطيك العافية. خدمة ممتازة صراحة.`
+  },
+  {
+    id:'transfer', title:'تحويل رصيد',
+    data: () => ({ amount: pick([2000,5000,10000,15000,25000]), recipient:'09'+rnd(10000000,99999999) }),
+    intro: c => `مرحبا، معك ${c.name}. بدي حوّل ${c.data.amount} ليرة لرقم ${c.data.recipient}، بس التحويل من تطبيقي ما عم يمشي. بتقدر تعملها من عندك؟`,
+    steps:['lookup','transfer'],
+    fix: () => `وصل التحويل للرقم التاني؟ تمام! شكراً كتير على مساعدتك.`
+  },
+  {
+    id:'slow', title:'الإنترنت بطيء',
+    data: () => ({}),
+    intro: c => `ألو، ${c.name} معك. الإنترنت عندي صار بطيء كتير من الصبح، الصفحات ما عم تفتح. شو القصة؟`,
+    steps:['linecheck','restart'],
+    fix: () => `أيوا! صار يشتغل بسرعة طبيعية. شكراً، إنت أنقذت يومي.`
+  },
+  {
+    id:'nonet', title:'انقطاع الشبكة',
+    data: () => ({}),
+    intro: c => `مرحبا، أنا ${c.name}. من ساعتين ما في شبكة على خطي أبداً، جربت أطفي الجهاز وشغّله وما في فايدة.`,
+    steps:['linecheck','ticket'],
+    fix: () => `طيب، بستنى التذكرة تتحل. مشكور على الأقل عرفت شو المشكلة.`
+  },
+  {
+    id:'package', title:'تغيير باقة',
+    data: () => ({ pkg: pick(PACKAGES) }),
+    intro: c => `مرحبا، أنا ${c.name}. بدي غيّر باقتي لـ${c.data.pkg}، الباقة القديمة ما عادت تناسبني.`,
+    steps:['lookup','package'],
+    fix: () => `شفت الباقة تغيرت! حلو كتير، شكراً إلك.`
+  },
+  {
+    id:'lost', title:'خصم غير مبرر',
+    data: () => ({ amount: pick([3500,7500,12000,18000]) }),
+    intro: c => `ألو، معك ${c.name}. رصيدي ناقص ${c.data.amount} ليرة وأنا ما استعملت شي! بدي أعرف وين راحوا.`,
+    steps:['balance','usage','ticket'],
+    fix: () => `طيب، يعني في خصم نظامي. مشكور على التوضيح، عالأقل ارتحت.`
+  },
+  {
+    id:'susp', title:'الخط موقوف',
+    data: () => ({}),
+    intro: c => `مرحبا، أنا ${c.name}. خطي موقوف فجأة وأنا محتاجه للشغل. ليش موقوف؟`,
+    steps:['lookup','unblock'],
+    fix: () => `الخط رجع يشتغل! الحمد لله، شكراً كتير إلك.`
+  },
+  {
+    id:'bill', title:'فاتورة مرتفعة',
+    data: () => ({ pkg: pick(PACKAGES) }),
+    intro: c => `ألو، ${c.name}. فاتورتي هالشهر طلعت ضعف الشهر الماضي وأنا ما غيرت شي. بدي تفسير.`,
+    steps:['usage','package'],
+    fix: () => `تمام، فهمت. يلا غيرلي الباقة لـ${c.data.pkg} خلص نرتاح.`
+  }
+];
+
+const TOOLS = [
+  {id:'lookup',   name:'استعلام عن الرقم', icon:'🔍'},
+  {id:'balance',  name:'فحص الرصيد',       icon:'💰'},
+  {id:'linecheck',name:'فحص حالة الخط',    icon:'📶'},
+  {id:'restart',  name:'إعادة تشغيل الخدمة',icon:'🔄'},
+  {id:'recharge', name:'شحن رصيد',         icon:'💳', fields:[
+      {key:'amount', label:'المبلغ (ل.س)', type:'number', placeholder:'مثال: 10000'}]},
+  {id:'transfer', name:'تحويل رصيد',       icon:'🔁', fields:[
+      {key:'recipient', label:'رقم المستلم', type:'text', placeholder:'09xxxxxxxx'},
+      {key:'amount', label:'المبلغ (ل.س)', type:'number', placeholder:'مثال: 5000'}]},
+  {id:'package',  name:'تغيير الباقة',     icon:'📦', fields:[
+      {key:'pkg', label:'الباقة', type:'select', options:PACKAGES}]},
+  {id:'usage',    name:'سجل الاستخدام',    icon:'📊'},
+  {id:'ticket',   name:'فتح تذكرة فنية',   icon:'🎫', fields:[
+      {key:'issue', label:'وصف المشكلة', type:'text', placeholder:'وصف مختصر...'}]},
+  {id:'unblock',  name:'فك الحظر',         icon:'🔓'}
+];
+
+const TOOL_REACTIONS = {
+  lookup:   ['لحظة... أيوا، شفت الملف؟','تمام، شو طلع معك؟','إيه، ظهر عندك شي؟'],
+  balance:  ['شو رصيدي؟ خبرني.','أيوا، وكم باقي؟','طيب شو بيّن الرصيد؟'],
+  linecheck:['شو حالة الخط؟ في شي غلط؟','طيب شو بيّن معك؟','إيه، الخط سليم؟'],
+  restart:  ['عملت إعادة تشغيل؟ خليني جرب...','إعادة تشغيل؟ طيب جربت.'],
+  recharge: ['وصلت الرسالة! عظيم.','شكراً، شفت الرصيد زاد.'],
+  transfer: ['وصل التحويل للرقم التاني؟ تمام.','الله يعطيك العافية، وصل.'],
+  package:  ['تغيرت الباقة؟ حلو كتير.','تمام، شفت الباقة الجديدة.'],
+  usage:    ['شو بيّن بسجل الاستخدام؟','طيب وين راحوا المصاري؟'],
+  ticket:   ['فتحتولي تذكرة؟ قديش بدها وقت؟','تمام، ورقم التذكرة؟'],
+  unblock:  ['الخط رجع يشتغل؟! شكراً.','الحمد لله، صار في شبكة.']
+};
+
+const EMPATHY_WORDS = ['اتفهم','بتفهم','أتفهم','معك حق','آسف','اسف','بعرف','مؤسف','اعتذر','أعتذر','ولا يهمك','أكيد محق'];
+const THANKS_WORDS = ['شكرا','شكراً','مشكور','يعطيك العافية','تسلم'];
+
+/* ============================================================
+   CUSTOMER CREATION
+============================================================ */
+function newCustomer(){
+  const p = pick(PROBLEMS);
+  const pers = pick(PERSONALITIES);
+  const c = {
+    name: pick(FIRST) + ' ' + pick(LAST),
+    personality: pers,
+    look: makeLook(),
+    msisdn: '09' + rnd(10000000, 99999999),
+    problem: p,
+    done: [],
+    revealed: { msisdn:false },
+    fixed: false,
+    data: {},
+    intro: ''
+  };
+  c.data = p.data();
+  c.intro = p.intro(c);
+  c.avatar = avatarSVG(c.look, 'av' + Math.random().toString(36).slice(2,7));
+  return c;
+}
+
+/* ============================================================
+   UI: CHAT
+============================================================ */
+const chatEl = $('#chat');
+function addMsg(role, text){
+  const d = document.createElement('div');
+  d.className = 'msg ' + role;
+  d.textContent = text;
+  chatEl.appendChild(d);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  return d;
+}
+function addTyping(){
+  const d = document.createElement('div');
+  d.className = 'msg customer typing';
+  d.textContent = 'الزبون يكتب...';
+  chatEl.appendChild(d);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  return d;
+}
+function toast(t){
+  const el = $('#toast');
+  el.textContent = t;
+  el.classList.add('on');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('on'), 2600);
+}
+
+/* ============================================================
+   SATISFACTION
+============================================================ */
+function changeSat(d){
+  state.sat = clamp(state.sat + d, 0, 100);
+  const bar = $('#cpSat');
+  bar.style.width = state.sat + '%';
+  const mood = state.sat >= 75 ? '😊 راضي' : state.sat >= 50 ? '😐 محايد' : state.sat >= 28 ? '😠 متضايق' : '🤬 غاضب جداً';
+  $('#cpMood').textContent = mood;
+  if(state.sat < 15 && state.phase === 'active'){
+    setTimeout(()=>{ toast('الزبون أغلق الخط! 😤'); endCall(true); }, 900);
+  }
+}
+
+/* ============================================================
+   RENDER TOOLS
+============================================================ */
+function renderTools(){
+  const wrap = $('#tools');
+  wrap.innerHTML = '';
+  TOOLS.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'tool';
+    b.dataset.id = t.id;
+    b.innerHTML = `<span class="ico">${t.icon}</span><span>${t.name}</span>`;
+    b.onclick = () => onToolClick(t, b);
+    b.disabled = state.phase !== 'active';
+    wrap.appendChild(b);
+  });
+}
+function refreshToolStates(){
+  const c = state.customer;
+  document.querySelectorAll('.tool').forEach(b => {
+    const id = b.dataset.id;
+    b.disabled = state.phase !== 'active';
+    b.classList.toggle('done', !!(c && c.done.includes(id)));
+  });
+  if(c){
+    $('#toolCount').textContent = c.done.length + '/' + c.problem.steps.length;
+  } else {
+    $('#toolCount').textContent = '0/0';
+  }
+}
+
+/* ============================================================
+   TOOL EXECUTION
+============================================================ */
+function onToolClick(tool){
+  if(state.phase !== 'active' || !state.customer) return;
+  clickSound();
+  const c = state.customer;
+
+  if(!c.revealed.msisdn){
+    toast('لازم تسأل الزبون عن رقمه أولاً 📞');
+    errorSound();
+    return;
+  }
+
+  if(tool.fields){
+    openModal(tool.name, tool.fields, vals => runTool(tool, vals));
+  } else {
+    runTool(tool, {});
+  }
+}
+
+function runTool(tool, params){
+  const c = state.customer;
+  if(!c || state.phase !== 'active') return;
+
+  const inSolution = c.problem.steps.includes(tool.id);
+
+  if(!inSolution){
+    changeSat(-5);
+    addMsg('sys', `تم تنفيذ «${tool.name}» — لا علاقة له بمشكلة الزبون`);
+    const react = pick(['ليش عم تعمل هالشي؟ ما هاد مشكلتي!','معليش، بس أنا ما جيت منشان هالموضوع.','إيه... وهلق شو بالنسبة لمشكلتي؟']);
+    customerSay(react, -0);
+    errorSound();
+    return;
+  }
+
+  if(c.done.includes(tool.id)){
+    toast('هذا الإجراء منفّذ مسبقاً');
+    return;
+  }
+
+  // validate params
+  let paramOk = true;
+  let detail = '';
+  if(tool.id === 'recharge'){
+    const amt = Number(params.amount);
+    if(amt !== c.data.amount){ paramOk = false; detail = `المبلغ غير مطابق (المطلوب ${c.data.amount})`; }
+    else detail = amt + ' ل.س';
+  }
+  if(tool.id === 'transfer'){
+    const r = (params.recipient || '').replace(/\s/g,'');
+    const amt = Number(params.amount);
+    if(r !== c.data.recipient){ paramOk = false; detail = 'رقم المستلم غير صحيح'; }
+    else if(amt !== c.data.amount){ paramOk = false; detail = 'المبلغ غير مطابق'; }
+    else detail = amt + ' ل.س إلى ' + r;
+  }
+  if(tool.id === 'package'){
+    if(params.pkg !== c.data.pkg){ paramOk = false; detail = 'الباقة غير مطابقة'; }
+    else detail = params.pkg;
+  }
+  if(tool.id === 'ticket') detail = params.issue || 'مشكلة فنية';
+
+  if(!paramOk){
+    changeSat(-8);
+    addMsg('sys', `⚠️ فشل «${tool.name}» — ${detail}`);
+    customerSay(pick(['شو؟ هاد مو اللي طلبته!','لا لا، إنت غلطت بالتفاصيل.','معليش، بس هيك ما رح تنحل المشكلة.']), -0);
+    errorSound();
+    return;
+  }
+
+  // success
+  c.done.push(tool.id);
+  changeSat(+10);
+  successSound();
+  addMsg('sys', `✅ «${tool.name}»${detail ? ' — ' + detail : ''} — تم بنجاح`);
+  refreshToolStates();
+
+  const reacts = TOOL_REACTIONS[tool.id] || ['تمام...'];
+  customerSay(pick(reacts), -0, true);
+
+  // check fixed
+  if(!c.fixed && c.problem.steps.every(s => c.done.includes(s))){
+    c.fixed = true;
+    changeSat(+25);
+    setTimeout(()=>{
+      addMsg('sys', '🎉 تم حل مشكلة الزبون بالكامل');
+      customerSay(c.problem.fix(), 0, false, true);
+      successSound();
+    }, 1100);
+  }
+}
+
+/* ============================================================
+   CUSTOMER SAYS (auto lines with TTS)
+============================================================ */
+function customerSay(text, satDelta = 0, short = false, final = false){
+  const c = state.customer;
+  if(!c) return;
+  addMsg('customer', text);
+  state.history.push({role:'customer', text});
+  if(satDelta) changeSat(satDelta);
+  const p = c.personality;
+  const rate = short ? p.rate * 1.05 : p.rate;
+  speak(text, p.pitch, rate);
+  if(final) refreshToolStates();
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+function openModal(title, fields, onSubmit){
+  $('#modalTitle').textContent = title;
+  const body = $('#modalBody');
+  body.innerHTML = '';
+  const inputs = {};
+  fields.forEach(f => {
+    const lbl = document.createElement('label');
+    lbl.className = 'fld';
+    const sp = document.createElement('span');
+    sp.textContent = f.label;
+    lbl.appendChild(sp);
+    let el;
+    if(f.type === 'select'){
+      el = document.createElement('select');
+      f.options.forEach(o => {
+        const op = document.createElement('option');
+        op.value = o; op.textContent = o;
+        el.appendChild(op);
+      });
+    } else {
+      el = document.createElement('input');
+      el.type = f.type || 'text';
+      el.placeholder = f.placeholder || '';
+    }
+    lbl.appendChild(el);
+    body.appendChild(lbl);
+    inputs[f.key] = el;
+  });
+  $('#modalOk').onclick = () => {
+    const vals = {};
+    Object.keys(inputs).forEach(k => vals[k] = inputs[k].value.trim());
+    closeModal();
+    onSubmit(vals);
+  };
+  $('#modalCancel').onclick = closeModal;
+  $('#modal').classList.add('show');
+  const first = body.querySelector('input,select');
+  if(first) setTimeout(()=>first.focus(), 60);
+}
+function closeModal(){ $('#modal').classList.remove('show'); }
+
+/* ============================================================
+   AI TURN (Gemini)
+============================================================ */
+async function aiTurn(){
+  const c = state.customer;
+  const actionsList = c.done.length
+    ? c.done.map(id => (TOOLS.find(t => t.id === id) || {}).name).join('، ')
+    : 'لا شيء حتى الآن';
+
+  const transcript = state.history.slice(-14)
+    .map(h => (h.role === 'agent' ? 'الموظف: ' : 'الزبون: ') + h.text)
+    .join('\n') || '(لم يبدأ الحوار بعد)';
+
+  const prompt = [
+    'أنت تلعب دور زبون في مركز خدمة عملاء شركة سيريتل للاتصالات في سوريا. أنت إنسان حقيقي ولست ذكاءً اصطناعياً.',
+    'اسمك: ' + c.name,
+    'شخصيتك: ' + c.personality.name + ' — ' + c.personality.desc,
+    'مشكلتك: ' + c.problem.title,
+    'تفاصيل مشكلتك: ' + c.intro,
+    'رقم هاتفك: ' + c.msisdn + ' — لا تعطِ الرقم أبداً إلا إذا سألك الموظف عن رقمك صراحةً.',
+    'مستوى رضاك الحالي: ' + Math.round(state.sat) + ' من 100.',
+    'الإجراءات التي نفذها الموظف على النظام: ' + actionsList,
+    'سجل المحادثة حتى الآن:',
+    transcript,
+    '',
+    'قواعد صارمة:',
+    '1) تكلم باللهجة السورية العامية، من جملة إلى ثلاث جمل قصيرة، طبيعي جداً وبسيط.',
+    '2) لا تكرر أي جملة قلتها سابقاً في هذه المحادثة. نوّع بالكلمات.',
+    '3) لا تعطِ رقمك إلا إذا سأل الموظف عن الرقم صراحة (كلمة رقم/نمرة).',
+    '4) إذا نفذ الموظف إجراءً مفيداً اشكره وتفاعل معه. إذا لم ينفذ شيئاً مفيداً، زد نفاد صبرك تدريجياً حسب مستوى رضاك.',
+    '5) لا تخرج عن الشخصية أبداً ولا تذكر أنك ذكاء اصطناعي أو نموذج لغوي.',
+    '6) إذا حُلّت مشكلتك بالكامل، عبّر عن ارتياحك الكبير واشكره.',
+    '7) satisfactionDelta رقم بين -12 و +8 حسب ما قاله الموظف.',
+    '',
+    'أعد الرد بصيغة JSON فقط دون أي نص إضافي أو علامات كود:',
+    '{"reply":"ردك بالعامية","satisfactionDelta":0,"revealedMsisdn":false,"resolved":false}'
+  ].join('\n');
+
+  try{
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + encodeURIComponent(state.apiKey),
+      {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          contents:[{ role:'user', parts:[{ text: prompt }] }],
+          generationConfig:{ temperature:0.95, maxOutputTokens:320, responseMimeType:'application/json' }
+        })
+      }
+    );
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const txt = (data.candidates && data.candidates[0] && data.candidates[0].content &&
+                 data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || '';
+    const clean = txt.replace(/```json/gi,'').replace(/```/g,'').trim();
+    const obj = JSON.parse(clean);
+    if(typeof obj.reply !== 'string' || !obj.reply.trim()) throw new Error('bad reply');
+    if(obj.revealedMsisdn === true) c.revealed.msisdn = true;
+    const d = Number(obj.satisfactionDelta);
+    if(!isNaN(d)) changeSat(clamp(d, -12, 8));
+    return obj.reply.trim();
+  }catch(err){
+    console.warn('AI error:', err);
+    if(!state.warnedAI){
+      state.warnedAI = true;
+      toast('تعذر الاتصال بالذكاء الاصطناعي — تحويل للنمط المحلي');
+    }
+    return null;
+  }
+}
+
+/* ============================================================
+   LOCAL ENGINE (fallback)
+============================================================ */
+let lastLocal = '';
+function localTurn(text){
+  const c = state.customer;
+  const t = text.replace(/[إأآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').toLowerCase();
+  const has = (...ks) => ks.some(k => t.includes(k));
+
+  // ---- ask for number
+  if(!c.revealed.msisdn && (has('رقم','نمره','نمرتك','رقمك'))){
+    c.revealed.msisdn = true;
+    changeSat(+2);
+    return pick([
+      'أكيد، رقمي هو ' + c.msisdn + '.',
+      c.msisdn + ' — هاد رقمي، خذه.',
+      'رقمي ' + c.msisdn + '، كتبه عندك.',
+      'إيه، ' + c.msisdn + '.'
+    ]);
+  }
+
+  // ---- if fixed already
+  if(c.fixed){
+    return pick([
+      'إيه شكراً، المشكلة انحلت. الله يعطيك العافية.',
+      'تمام كتير، ما قصرت معي.',
+      'شكراً إلك، خدمة ممتازة.'
+    ]);
+  }
+
+  // ---- empathy
+  if(has(...EMPATHY_WORDS)){
+    changeSat(+3);
+    return pick([
+      'الله يخليك، عالأقل في حدا عم يسمعني.',
+      'شكراً لتفهمك، هاد بيعني كتير.',
+      'طيب، منشان هيك بحكي معك.',
+      'إيه والله، تعبت من هالمشكلة.'
+    ]);
+  }
+
+  // ---- asking for details
+  if(has('مبلغ','قديش','كم','المبلغ') && c.problem.id === 'recharge'){
+    return 'المبلغ ' + c.data.amount + ' ليرة، بس هيك.';
+  }
+  if(has('لمين','المستلم','رقم التحويل') && c.problem.id === 'transfer'){
+    return 'الرقم هو ' + c.data.recipient + '، بدي حوّله هالمبلغ.';
+  }
+  if(has('باقه','باقة') && c.problem.id === 'package'){
+    return 'بدي ' + c.data.pkg + '، هاد اللي طلبته.';
+  }
+
+  // ---- stalling / no action
+  const progress = c.done.length;
+  if(progress === 0){
+    state.stall++;
+    if(state.stall > 2){
+      changeSat(-3);
+      return pick([
+        'شو صار؟ أنا عم استنى من زمان!',
+        'حبيبي أنا عندي شغل، فيك تعمل شي مفيد؟',
+        'له له، لهلق ما عملت شي! شو القصة؟',
+        'هلق أنا بحكي معك من عشر دقايق وما في نتيجة.'
+      ]);
+    }
+    return pick([
+      'طيب... شو رح تعمل بالنسبة لمشكلتي؟',
+      'إيه وبعدين؟ شو الخطوة التانية؟',
+      'طيب فهمت، بس بدي حل.',
+      'أنا سامعك، بس بدي أشوف نتيجة.'
+    ]);
+  }
+
+  // ---- generic
+  return pick([
+    'طيب، شو باقي؟',
+    'إيه... كمّل.',
+    'فهمت عليك، بس أنا لسا مستعجل.',
+    'إن شاء الله تنحل بسرعة.',
+    'طيب، شو رح تعمل هلق؟',
+    'الله يستر، بدي أشوف نتيجة.'
+  ]);
+}
+
+/* ============================================================
+   SEND MESSAGE
+============================================================ */
+async function sendMessage(){
+  const input = $('#msg');
+  const text = input.value.trim();
+  if(!text || state.phase !== 'active' || !state.customer) return;
+  input.value = '';
+  clickSound();
+
+  addMsg('agent', text);
+  state.history.push({ role:'agent', text });
+
+  const typing = addTyping();
+  let reply = null;
+  if(state.apiKey){
+    reply = await aiTurn();
+  }
+  if(!reply){
+    await sleep(420 + Math.random() * 420);
+    reply = localTurn(text);
+  } else {
+    await sleep(200);
+  }
+  typing.remove();
+
+  // avoid exact repetition
+  if(reply === lastLocal){
+    reply = reply + ' ' + pick(['والله.','يعني.','شو رأيك؟','بصراحة.']);
+  }
+  lastLocal = reply;
+
+  addMsg('customer', reply);
+  state.history.push({ role:'customer', text: reply });
+  const p = state.customer.personality;
+  speak(reply, p.pitch, p.rate);
+}
+
+/* ============================================================
+   CALL FLOW
+============================================================ */
+function startCall(){
+  if(state.phase !== 'idle') return;
+  state.customer = newCustomer();
+  state.history = [];
+  state.sat = 60 + rnd(-8, 8);
+  state.stall = 0;
+  lastLocal = '';
+  state.phase = 'ringing';
+
+  const c = state.customer;
+  $('#phoneLcd').textContent = 'مكالمة واردة...';
+  $('#phoneBody').classList.add('ringing');
+  $('#ringGlow').classList.add('on');
+  $('#answerBtn').disabled = false;
+  $('#answerBtn').textContent = 'رد';
+  $('#answerBtn').className = 'phone-btn answer';
+  $('#csName').textContent = 'مكالمة واردة';
+  $('#csSub').textContent = 'اضغط «رد» على الهاتف';
+  startRing();
+}
+
+async function answerCall(){
+  if(state.phase !== 'ringing') return;
+  stopRing();
+  clickSound();
+  successSound();
+  state.phase = 'active';
+  const c = state.customer;
+
+  $('#phoneBody').classList.remove('ringing');
+  $('#ringGlow').classList.remove('on');
+  $('#phoneLcd').textContent = 'مكالمة جارية';
+  $('#answerBtn').disabled = true;
+  $('#answerBtn').textContent = '—';
+
+  // customer panel
+  $('#cpAvatar').innerHTML = c.avatar;
+  $('#cpName').textContent = c.name;
+  $('#cpTag').textContent = '📞 ' + (c.revealed.msisdn ? c.msisdn : '— — —');
+  $('#custPanel').classList.add('show');
+  changeSat(0);
+
+  $('#csName').textContent = c.name;
+  $('#csSub').textContent = c.personality.name + ' • ' + c.problem.title;
+
+  chatEl.innerHTML = '';
+  addMsg('sys', '📞 بدأت المكالمة — ' + c.name + ' • ' + c.problem.title);
+  await sleep(500);
+
+  addMsg('customer', c.intro);
+  state.history.push({ role:'customer', text: c.intro });
+  speak(c.intro, c.personality.pitch, c.personality.rate);
+
+  refreshToolStates();
+  $('#msg').focus();
+}
+
+function endCall(autoHangup){
+  if(state.phase !== 'active' && state.phase !== 'ringing') return;
+  stopRing();
+  try{ speechSynthesis.cancel(); }catch(e){}
+  setSpeaking(false);
+
+  const wasActive = state.phase === 'active';
+  state.phase = 'ended';
+
+  const c = state.customer;
+  $('#phoneBody').classList.remove('ringing');
+  $('#ringGlow').classList.remove('on');
+  $('#phoneLcd').textContent = autoHangup ? 'الزبون أغلق' : 'انتهت المكالمة';
+  $('#answerBtn').disabled = true;
+  $('#answerBtn').textContent = 'رد';
+  $('#answerBtn').className = 'phone-btn answer';
+  $('#custPanel').classList.remove('show');
+  refreshToolStates();
+
+  if(!wasActive){ state.phase = 'idle'; setTimeout(startCall, 1800); return; }
+
+  // score
+  state.stats.calls++;
+  let gained = 0;
+  if(c.fixed){
+    state.stats.fixed++;
+    gained = Math.round(state.sat * 1.2) + 40;
+  } else {
+    gained = Math.round(state.sat * 0.3);
+  }
+  state.stats.score += gained;
+
+  $('#resTitle').textContent = c.fixed ? '🎉 تم حل المشكلة!' : (autoHangup ? '😤 الزبون أغلق الخط' : '📴 لم تُحل المشكلة');
+  $('#resScore').textContent = '+' + gained;
+  $('#resText').innerHTML =
+    'الزبون: <b>' + c.name + '</b><br>' +
+    'المشكلة: <b>' + c.problem.title + '</b><br>' +
+    'الرضا النهائي: <b>' + Math.round(state.sat) + '%</b><br>' +
+    'الخطوات المنجزة: <b>' + c.done.length + ' / ' + c.problem.steps.length + '</b><br><br>' +
+    'المجموع الكلي: <b>' + state.stats.score + '</b> نقطة • ' +
+    'مكالمات: <b>' + state.stats.calls + '</b> • ' +
+    'محلولة: <b>' + state.stats.fixed + '</b>';
+  $('#result').classList.add('show');
+}
+
+/* ============================================================
+   QUICK CHIPS
+============================================================ */
+const QUICK = [
+  'مرحباً، معك خدمة عملاء سيريتل. كيف بقدر ساعدك؟',
+  'ممكن رقمك من فضلك؟',
+  'أتفهم شعورك، وأنا آسف لهيدا الوضع.',
+  'تمام، رح نعالج الموضوع حالاً.',
+  'لحظة من فضلك، عم شوف حسابك.',
+  'هل في شي تاني بقدر ساعدك فيه؟'
+];
+function renderQuick(){
+  const q = $('#quick');
+  q.innerHTML = '';
+  QUICK.forEach(txt => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = txt;
+    b.onclick = () => {
+      if(state.phase !== 'active') return;
+      $('#msg').value = txt;
+      $('#msg').focus();
+    };
+    q.appendChild(b);
+  });
+}
+
+/* ============================================================
+   CLOCK
+============================================================ */
+setInterval(()=>{
+  const d = new Date();
+  $('#clock').textContent =
+    String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}, 1000);
+
+/* ============================================================
+   INIT / START
+============================================================ */
+function initGame(){
+  const key = $('#apiKeyInput').value.trim();
+  state.apiKey = key || null;
+  if(key) { try{ localStorage.setItem('syriatel_key', key); }catch(e){} }
+  $('#startScreen').style.display = 'none';
+  try{ actx(); }catch(e){}
+  renderTools();
+  renderQuick();
+  refreshToolStates();
+  addMsg('sys', 'نظام CRM جاهز — بانتظار المكالمات...');
+  setTimeout(startCall, 2200);
+}
+
+$('#startBtn').onclick = initGame;
+$('#answerBtn').onclick = () => { if(state.phase === 'ringing') answerCall(); };
+$('#send').onclick = sendMessage;
+$('#endBtn').onclick = () => endCall(false);
+$('#msg').addEventListener('keydown', e => { if(e.key === 'Enter') sendMessage(); });
+$('#resBtn').onclick = () => {
+  $('#result').classList.remove('show');
+  state.phase = 'idle';
+  state.customer = null;
+  chatEl.innerHTML = '';
+  addMsg('sys', 'في انتظار المكالمة التالية...');
+  setTimeout(startCall, 1600);
+};
+
+// restore key
+try{
+  const saved = localStorage.getItem('syriatel_key');
+  if(saved) $('#apiKeyInput').value = saved;
+}catch(e){}
+
+// initial render
+renderTools();
+renderQuick();
+changeSat(0);
+</script>
+</body>
+</html>
