@@ -1,667 +1,1084 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>سيريتل — مركز خدمة العملاء</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: 'Cairo', sans-serif; }
-body { height: 100vh; overflow: hidden; background: #090e14; color: #e8eefb; user-select: none; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>محاكاة مركز خدمة عملاء سيريتل - Syriatel Call Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --syriatel-red: #E30613;
+      --syriatel-red-dark: #b8040f;
+      --bg-dark: #0f172a;
+      --glass-bg: rgba(30, 41, 59, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-phone: rgba(15, 23, 42, 0.85);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #22c55e;
+    }
 
-/* شاشة المكتب الأساسية */
-#office { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at center, #1a2b3d, #05080d); transition: filter 1s ease, opacity 1s ease; }
-#office.blurred { filter: blur(8px) brightness(0.5); pointer-events: none; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-.desk-layout { position: relative; width: 1200px; height: 700px; max-width: 95vw; max-height: 90vh; display: flex; justify-content: space-between; align-items: flex-end; padding: 40px; perspective: 1000px; }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+    }
 
-/* تصميم شاشة الكمبيوتر على المكتب */
-.pc-monitor { width: 60%; height: 55%; background: #000; border-radius: 12px; border: 8px solid #1f2937; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,255,255,0.1); position: relative; transform: rotateY(10deg) rotateX(5deg); cursor: pointer; transition: transform 0.3s; display: flex; justify-content: center; align-items: center; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><text x="50" y="50" fill="rgba(255,255,255,0.05)" font-size="20">Syriatel CRM</text></svg>') center; }
-.pc-monitor:hover { transform: rotateY(5deg) rotateX(2deg) scale(1.02); }
-.pc-monitor::after { content: 'اضغط لفتح الكمبيوتر'; color: #4fd1c5; font-weight: 800; font-size: 20px; text-shadow: 0 0 10px #4fd1c5; }
+    /* === 1. Splash Screen === */
+    #splash-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 100;
+      background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.75)),
+                  url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
 
-/* تصميم الهاتف على المكتب */
-.desk-phone { width: 200px; height: 350px; background: #111; border-radius: 30px; border: 4px solid #333; box-shadow: 0 15px 40px rgba(0,0,0,0.8); position: relative; transform: rotateY(-15deg) rotateX(10deg); cursor: pointer; transition: transform 0.3s; display: flex; justify-content: center; align-items: center; }
-.desk-phone:hover { transform: rotateY(-5deg) rotateX(5deg) scale(1.05); }
-.desk-phone::after { content: 'اضغط لفتح الهاتف'; color: #3b82f6; font-weight: 800; font-size: 14px; }
+    .splash-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      padding: 2.5rem 2rem;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      max-width: 90%;
+      width: 380px;
+    }
 
-/* زر البداية */
-#start-screen { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); z-index: 50; display: flex; flex-direction: column; gap: 15px; transition: opacity 0.5s ease, transform 0.5s ease; }
-#start-screen.hide { opacity: 0; transform: translateY(-50%) translateX(-50px); pointer-events: none; }
-#start-btn { padding: 15px 40px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-size: 24px; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 10px 30px rgba(16,185,129,0.4); transition: 0.2s; }
-#start-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(16,185,129,0.6); }
+    .logo-badge {
+      width: 70px;
+      height: 70px;
+      background: var(--syriatel-red);
+      color: white;
+      font-weight: 800;
+      font-size: 1.8rem;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.2rem;
+      box-shadow: 0 10px 25px rgba(227, 6, 19, 0.4);
+    }
 
-/* الشاشات المكبرة (الهاتف والكمبيوتر) */
-.overlay-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; justify-content: center; align-items: center; z-index: 100; }
-.overlay-screen.active { display: flex; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .splash-card h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
 
-/* واجهة الكمبيوتر المكبرة */
-.pc-full { width: 90vw; max-width: 900px; height: 85vh; max-height: 650px; background: #0f172a; border-radius: 16px; border: 1px solid #1e293b; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.9); }
-.pc-header { background: #1e293b; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-.pc-header h2 { color: #38bdf8; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-.pc-header .status { color: #94a3b8; font-size: 12px; }
-.pc-body { display: flex; flex: 1; overflow: hidden; }
-.pc-tools { width: 35%; background: #0f172a; border-left: 1px solid #1e293b; padding: 15px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
-.pc-tools h3 { color: #64748b; font-size: 12px; margin-bottom: 5px; }
-.pc-tool-btn { padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; font-size: 13px; text-align: right; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
-.pc-tool-btn:hover { background: #334155; border-color: #38bdf8; }
-.pc-tool-btn.done { border-color: #10b981; background: rgba(16,185,129,0.1); color: #10b981; }
-.pc-chat { flex: 1; display: flex; flex-direction: column; background: #020617; }
-.chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-.msg { max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
-.msg.cust { background: #1e293b; align-self: flex-start; border-top-left-radius: 4px; }
-.msg.agent { background: #059669; align-self: flex-end; border-top-right-radius: 4px; }
-.msg.sys { align-self: center; background: transparent; border: 1px dashed #334155; color: #10b981; font-size: 12px; }
-.chat-input { padding: 15px; background: #0f172a; border-top: 1px solid #1e293b; display: flex; gap: 10px; }
-.chat-input input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #020617; color: #fff; outline: none; }
-.chat-input button { padding: 0 20px; background: #10b981; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.close-btn { background: #ef4444; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .splash-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
 
-/* واجهة الهاتف المكبرة (شكل آيفون) */
-.iphone-frame { width: 380px; height: 780px; max-height: 90vh; max-width: 95vw; background: #000; border-radius: 50px; border: 12px solid #1f2937; position: relative; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 0 2px #000, 0 30px 80px rgba(0,0,0,0.9); }
-.iphone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 35px; background: #000; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; z-index: 10; }
-.iphone-screen { flex: 1; background: linear-gradient(180deg, #0f172a, #020617); display: flex; flex-direction: column; position: relative; }
-.iphone-status-bar { height: 50px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 25px 5px; font-size: 12px; font-weight: bold; color: #fff; }
-.iphone-content { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; }
-.incoming-call { display: flex; flex-direction: column; align-items: center; gap: 20px; animation: slideUp 0.5s ease; }
-@keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.caller-avatar { width: 120px; height: 120px; border-radius: 50%; background: #1e293b; border: 4px solid #38bdf8; display: flex; justify-content: center; align-items: center; font-size: 40px; margin-bottom: 10px; }
-.caller-name { font-size: 28px; font-weight: 900; color: #fff; }
-.caller-number { font-size: 14px; color: #94a3b8; }
-.call-actions { display: flex; justify-content: space-around; width: 100%; margin-top: 40px; }
-.btn-call { width: 70px; height: 70px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 24px; transition: 0.2s; }
-.btn-answer { background: #10b981; color: #fff; box-shadow: 0 10px 20px rgba(16,185,129,0.4); }
-.btn-hang { background: #ef4444; color: #fff; box-shadow: 0 10px 20px rgba(239,68,68,0.4); }
-.btn-call:hover { transform: scale(1.1); }
+    .start-btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--syriatel-red), #ff2a3b);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(227, 6, 19, 0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-/* التبويبات داخل الهاتف */
-.phone-tabs { display: flex; border-top: 1px solid #1e293b; background: #0f172a; padding: 10px 0; }
-.phone-tab { flex: 1; text-align: center; color: #64748b; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-.phone-tab.active { color: #38bdf8; }
-.phone-tab svg { width: 24px; height: 24px; fill: currentColor; }
+    .start-btn:active {
+      transform: scale(0.97);
+    }
 
-/* المودال */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(5px); }
-.modal-overlay.active { display: flex; }
-.modal-content { background: #1e293b; padding: 25px; border-radius: 16px; width: 350px; max-width: 90vw; border: 1px solid #334155; }
-.modal-content h3 { margin-bottom: 15px; color: #38bdf8; }
-.modal-content input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; outline: none; }
-.modal-content .actions { display: flex; gap: 10px; }
-.modal-content button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-.btn-confirm { background: #10b981; color: #fff; }
-.btn-cancel { background: #475569; color: #fff; }
+    /* === 2. Desk (Game UI) === */
+    #game-ui {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background: linear-gradient(to bottom, #1e293b 0%, #0f172a 100%);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
 
-/* توست */
-#toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 30px; border: 1px solid #38bdf8; display: none; z-index: 300; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-#toast.show { display: block; animation: fadeIn 0.3s ease; }
+    .office-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+                  radial-gradient(circle at 80% 20%, rgba(227, 6, 19, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
 
-</style>
+    .desk-surface {
+      position: absolute;
+      bottom: 0;
+      left: -10%;
+      width: 120%;
+      height: 65%;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border-top: 3px solid rgba(255, 255, 255, 0.08);
+      transform: perspective(600px) rotateX(25deg);
+      transform-origin: bottom center;
+      box-shadow: inset 0 20px 40px rgba(0,0,0,0.8);
+    }
+
+    .desk-elements {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 85%;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .desk-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s;
+    }
+
+    .desk-item:hover {
+      transform: translateY(-8px) scale(1.03);
+    }
+
+    .desk-item-label {
+      margin-top: 1rem;
+      background: var(--glass-bg);
+      backdrop-filter: blur(8px);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Desk Phone Mockup */
+    .mini-phone {
+      width: 110px;
+      height: 220px;
+      background: #020617;
+      border-radius: 24px;
+      border: 4px solid #334155;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 15px rgba(227, 6, 19, 0.15);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 8px;
+    }
+
+    .mini-phone-screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .mini-phone-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--syriatel-red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 12px rgba(227, 6, 19, 0.5);
+    }
+
+    /* Desk PC Mockup */
+    .mini-pc {
+      width: 200px;
+      height: 150px;
+      background: #0f172a;
+      border: 5px solid #334155;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 20px rgba(56, 189, 248, 0.15);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .mini-pc-stand {
+      width: 50px;
+      height: 25px;
+      background: #1e293b;
+      margin: 0 auto;
+      border-radius: 0 0 6px 6px;
+    }
+
+    .mini-pc-base {
+      width: 90px;
+      height: 8px;
+      background: #334155;
+      margin: 0 auto;
+      border-radius: 4px;
+    }
+
+    .mini-pc-screen {
+      width: 100%;
+      height: 100%;
+      background: #090d16;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mini-pc-header {
+      height: 15px;
+      background: var(--syriatel-red);
+      border-radius: 4px;
+    }
+
+    .mini-pc-body {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border-radius: 4px;
+      border: 1px dashed rgba(255,255,255,0.1);
+    }
+
+    /* === 3. Overlays (Zoom-In Camera Animation) === */
+    .device-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.85);
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .device-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .close-btn:active {
+      transform: scale(0.9);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* --- Phone Overlay UI (iPhone Style) --- */
+    .phone-container {
+      width: 100%;
+      max-width: 380px;
+      height: 92vh;
+      max-height: 750px;
+      background: var(--glass-phone);
+      border-radius: 45px;
+      border: 8px solid #1e293b;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 0 2px rgba(255,255,255,0.2);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .phone-notch {
+      width: 120px;
+      height: 24px;
+      background: #1e293b;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
+      z-index: 20;
+    }
+
+    .phone-header {
+      padding: 35px 20px 10px;
+      background: rgba(30, 41, 59, 0.5);
+      border-bottom: 1px solid var(--glass-border);
+      text-align: center;
+    }
+
+    .phone-nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .phone-tab {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .phone-tab.active {
+      background: var(--syriatel-red);
+      color: white;
+      box-shadow: 0 4px 12px rgba(227, 6, 19, 0.3);
+    }
+
+    .phone-body {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #incoming-call {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      height: 100%;
+      padding: 20px 0;
+    }
+
+    .caller-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      box-shadow: 0 10px 25px rgba(56, 189, 248, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); }
+      70% { box-shadow: 0 0 0 20px rgba(56, 189, 248, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+    }
+
+    .caller-info { text-align: center; }
+    .caller-info h3 { font-size: 1.4rem; margin-bottom: 5px; }
+    .caller-info p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .call-actions {
+      display: flex;
+      gap: 30px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .call-btn {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+
+    .call-btn.accept { background: var(--accent-green); }
+    .call-btn.reject { background: var(--syriatel-red); }
+
+    #phone-tools {
+      display: none;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding-top: 10px;
+    }
+
+    .tool-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .tool-card:active { background: rgba(227, 6, 19, 0.2); }
+    .tool-icon { font-size: 1.6rem; }
+    .tool-card span { font-size: 0.85rem; font-weight: 600; }
+
+    /* --- PC Overlay UI --- */
+    .pc-container {
+      width: 95%;
+      max-width: 900px;
+      height: 85vh;
+      max-height: 650px;
+      background: #0f172a;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pc-topbar {
+      height: 45px;
+      background: linear-gradient(90deg, var(--syriatel-red-dark), var(--syriatel-red));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px 0 50px;
+    }
+
+    .pc-topbar-title { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+    .pc-layout { flex: 1; display: flex; overflow: hidden; }
+
+    .crm-sidebar {
+      width: 260px;
+      background: rgba(30, 41, 59, 0.5);
+      border-left: 1px solid var(--glass-border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .customer-profile { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+    .customer-avatar-lg {
+      width: 70px; height: 70px; border-radius: 50%; background: #334155;
+      display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 2px solid var(--accent-blue);
+    }
+
+    .satisfaction-box {
+      width: 100%; background: rgba(15, 23, 42, 0.6); padding: 12px;
+      border-radius: 12px; border: 1px solid var(--glass-border);
+    }
+
+    .satisfaction-bar-bg { width: 100%; height: 8px; background: #334155; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+    .satisfaction-bar-fill { width: 80%; height: 100%; background: var(--accent-green); border-radius: 4px; transition: width 0.3s ease; }
+
+    .crm-chat-area { flex: 1; display: flex; flex-direction: column; background: #090d16; }
+    #chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+    .message { max-width: 75%; padding: 10px 14px; border-radius: 14px; font-size: 0.9rem; line-height: 1.4; animation: popIn 0.2s ease; }
+    @keyframes popIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    .message.customer { align-self: flex-start; background: #1e293b; border-bottom-right-radius: 2px; border: 1px solid var(--glass-border); }
+    .message.agent { align-self: flex-end; background: var(--syriatel-red); color: white; border-bottom-left-radius: 2px; }
+
+    .chat-input-area { padding: 12px 15px; background: rgba(30, 41, 59, 0.8); border-top: 1px solid var(--glass-border); display: flex; gap: 10px; }
+    #chat-input {
+      flex: 1; background: #0f172a; border: 1px solid var(--glass-border);
+      border-radius: 10px; padding: 10px 14px; color: white; outline: none; font-size: 0.9rem;
+    }
+    #chat-input:focus { border-color: var(--accent-blue); }
+    #send-btn { background: var(--syriatel-red); color: white; border: none; padding: 0 18px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+
+    @media (max-width: 640px) {
+      .crm-sidebar { display: none; }
+      .pc-container { height: 95vh; }
+    }
+
+    /* Modal for Tools Input */
+    #tool-modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200;
+      display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px);
+    }
+    #tool-modal.active { display: flex; }
+    .modal-box { background: #1e293b; padding: 20px; border-radius: 16px; width: 90%; max-width: 350px; border: 1px solid var(--glass-border); }
+    .modal-box h3 { margin-bottom: 15px; color: var(--accent-blue); }
+    .modal-box input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; outline: none; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .modal-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+    .modal-actions .ok { background: var(--accent-green); color: white; }
+    .modal-actions .cancel { background: #475569; color: white; }
+  </style>
 </head>
 <body>
 
-<!-- المكتب الأساسي -->
-<div id="office">
-  <div class="desk-layout">
-    <!-- زر البداية -->
-    <div id="start-screen">
-      <button id="start-btn">ابدأ الدوام</button>
-    </div>
-    
-    <!-- الكمبيوتر على المكتب -->
-    <div class="pc-monitor" id="pc-monitor" onclick="openPC()"></div>
-    
-    <!-- الهاتف على المكتب -->
-    <div class="desk-phone" id="desk-phone" onclick="openPhone()"></div>
-  </div>
-</div>
-
-<!-- شاشة الكمبيوتر المكبرة -->
-<div class="overlay-screen" id="pc-screen">
-  <div class="pc-full">
-    <div class="pc-header">
-      <h2>🖥️ Syriatel CRM</h2>
-      <span class="status" id="pc-status">في انتظار العميل...</span>
-      <button class="close-btn" onclick="closePC()">إغلاق</button>
-    </div>
-    <div class="pc-body">
-      <div class="pc-tools" id="pc-tools">
-        <h3>أدوات النظام</h3>
-        <!-- سيتم توليد الأزرار هنا -->
-      </div>
-      <div class="pc-chat">
-        <div class="chat-messages" id="chat-messages">
-          <div class="msg sys">مرحباً بك. ابدأ باستقبال المكالمات من الهاتف.</div>
-        </div>
-        <div class="chat-input">
-          <input type="text" id="chat-input-field" placeholder="اكتب ردك هنا..." onkeypress="handleEnter(event)">
-          <button onclick="sendMessage()">إرسال</button>
-        </div>
-      </div>
+  <!-- 1. Splash Screen -->
+  <div id="splash-screen">
+    <div class="splash-card">
+      <div class="logo-badge">S</div>
+      <h1>مركز خدمة العملاء</h1>
+      <p>محاكاة نظام موظف سيريتل الرقمي</p>
+      <button id="start-btn" class="start-btn">ابدأ دوامك</button>
     </div>
   </div>
-</div>
 
-<!-- شاشة الهاتف المكبرة -->
-<div class="overlay-screen" id="phone-screen">
-  <div class="iphone-frame">
-    <div class="iphone-notch"></div>
-    <div class="iphone-screen">
-      <div class="iphone-status-bar">
-        <span id="phone-time">9:41</span>
-        <span>📶 🔋</span>
-      </div>
-      <div class="iphone-content" id="phone-content">
-        <!-- محتوى الهاتف يتغير هنا -->
-        <div class="msg sys">لا توجد مكالمات حالياً...</div>
-      </div>
-      <div class="phone-tabs">
-        <div class="phone-tab active" onclick="switchTab('calls')">
-          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-          المكالمات
-        </div>
-        <div class="phone-tab" onclick="switchTab('info')">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-          معلومات الزبون
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  <!-- 2. Main Game Desk UI -->
+  <div id="game-ui">
+    <div class="office-bg"></div>
+    <div class="desk-surface"></div>
 
-<!-- المودال -->
-<div class="modal-overlay" id="modal">
-  <div class="modal-content">
-    <h3 id="modal-title">إجراء</h3>
-    <div id="modal-inputs"></div>
-    <div class="actions">
-      <button class="btn-confirm" onclick="submitModal()">تنفيذ</button>
-      <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
-    </div>
-  </div>
-</div>
-
-<!-- توست -->
-<div id="toast">رسالة</div>
-
-<script>
-// ==========================================
-// 1. إدارة الحالة (State Management)
-// ==========================================
-const state = {
-  phase: 'start', // start, waiting, ringing, active
-  customer: null,
-  chatHistory: [],
-  satisfaction: 60,
-  doneTools: [],
-  aiKey: null,
-  timeouts: [],
-  ringInterval: null,
-  activeTab: 'calls',
-  isPCBlur: true
-};
-
-// ==========================================
-// 2. البيانات (الزبائن، المشاكل، الأدوات)
-// ==========================================
-const NAMES = ['أحمد','ليلى','سمير','رنا','خالد','نور','مازن','سلمى','فادي','هبة'];
-const PROBLEMS = [
-  { id: 'recharge', title: 'شحن رصيد', steps: ['lookup', 'recharge'], data: () => ({ amount: pick([5000, 10000, 15000]) }), intro: c => `ألو؟ أنا ${c.name}. بدي اشحن رصيدي بـ ${c.data.amount} ليرة.`, isScam: false },
-  { id: 'transfer', title: 'تحويل رصيد', steps: ['lookup', 'transfer'], data: () => ({ amount: pick([2000, 5000]), recipient: '09' + rnd(10000000, 99999999) }), intro: c => `مرحبا، معك ${c.name}. بدي حوّل ${c.data.amount} ليرة لرقم ${c.data.recipient}.`, isScam: false },
-  { id: 'scam_lost', title: 'سرقة رصيد (نصب)', steps: ['ticket'], data: () => ({}), intro: c => `ألو! ${c.name} معك. انسرق رصيدي كله! بدي تعويض فوري 50 ألف ليرة هلأ!`, isScam: true, scamReact: () => 'شو يعني تذكرة؟! أنا بدي مصاري هلأ! إنت نصاب!' },
-  { id: 'scam_net', title: 'انقطاع شبكة (نصب)', steps: ['ticket'], data: () => ({}), intro: c => `مرحبا، أنا ${c.name}. الشبكة مقطوعة من يومين وأنا بشتغل عالنت. بدي تعويضي بباقة مجانية شهر!`, isScam: true, scamReact: () => 'ليش لأ؟ أنا خسرت شغلي! بدي باقة مجانية!' },
-  { id: 'slow', title: 'الإنترنت بطيء', steps: ['linecheck', 'restart'], data: () => ({}), intro: c => `الإنترنت عندي بطيء، أنا ${c.name}. شو القصة؟`, isScam: false }
-];
-
-const TOOLS = [
-  { id: 'lookup', name: 'التحقق من الحساب', icon: '🔍' },
-  { id: 'linecheck', name: 'فحص حالة الخط', icon: '📶' },
-  { id: 'recharge', name: 'شحن رصيد', icon: '💳', fields: [{ key: 'amount', label: 'المبلغ', type: 'number' }] },
-  { id: 'transfer', name: 'تحويل رصيد', icon: '🔁', fields: [{ key: 'recipient', label: 'رقم المستلم', type: 'text' }, { key: 'amount', label: 'المبلغ', type: 'number' }] },
-  { id: 'ticket', name: 'فتح تذكرة فنية', icon: '🎫' },
-  { id: 'restart', name: 'إعادة تشغيل الخدمة', icon: '🔄' }
-];
-
-// ==========================================
-// 3. الدوال المساعدة
-// ==========================================
-const $ = s => document.querySelector(s);
-const pick = a => a[Math.floor(Math.random() * a.length)];
-const rnd = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-function toast(msg) {
-  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(t.timer); t.timer = setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// أصوات
-let AC = null;
-function playSound(type) {
-  try {
-    if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
-    if (AC.state === 'suspended') AC.resume();
-    const o = AC.createOscillator(), g = AC.createGain();
-    o.connect(g); g.connect(AC.destination);
-    if (type === 'ring') {
-      o.frequency.value = 1000; g.gain.value = 0.1; o.start();
-      setTimeout(() => { o.frequency.value = 1200; }, 150);
-      setTimeout(() => { o.stop(); }, 300);
-    } else if (type === 'click') {
-      o.frequency.value = 800; g.gain.value = 0.05; o.start(); o.stop(AC.currentTime + 0.05);
-    } else if (type === 'success') {
-      o.frequency.value = 1000; g.gain.value = 0.1; o.start();
-      setTimeout(() => { o.frequency.value = 1500; }, 100);
-      setTimeout(() => { o.stop(); }, 250);
-    } else if (type === 'error') {
-      o.frequency.value = 300; o.type = 'sawtooth'; g.gain.value = 0.1; o.start(); o.stop(AC.currentTime + 0.2);
-    }
-  } catch (e) {}
-}
-
-// النطق (TTS)
-let voices = [];
-if ('speechSynthesis' in window) {
-  speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
-  voices = speechSynthesis.getVoices();
-}
-function speak(text) {
-  if (!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  const ar = voices.find(v => v.lang.startsWith('ar'));
-  if (ar) u.voice = ar;
-  u.lang = 'ar-SA'; u.rate = 0.95; u.pitch = 1;
-  speechSynthesis.speak(u);
-}
-
-// ==========================================
-// 4. واجهة المستخدم والتفاعل
-// ==========================================
-function initGame() {
-  $('#start-screen').classList.add('hide');
-  $('#office').classList.remove('blurred');
-  state.phase = 'waiting';
-  $('#pc-status').textContent = 'في انتظار العميل...';
-  updateUI();
-  
-  // جدولة أول مكالمة
-  scheduleCall(rnd(3000, 6000));
-}
-
-function scheduleCall(delay) {
-  const t = setTimeout(() => {
-    if (state.phase === 'waiting') startCall();
-    else if (state.phase === 'active') {
-      // إذا كان مشغول، نعيد الجدولة
-      scheduleCall(10000);
-    }
-  }, delay);
-  state.timeouts.push(t);
-}
-
-function startCall() {
-  state.phase = 'ringing';
-  state.customer = generateCustomer();
-  state.chatHistory = [];
-  state.doneTools = [];
-  state.satisfaction = 60;
-  
-  playSound('ring');
-  state.ringInterval = setInterval(() => playSound('ring'), 1500);
-  
-  // تحديث واجهة الهاتف
-  updatePhoneUI();
-  
-  // إذا كان الكمبيوتر مفتوح، نحدثه
-  if (!$('#pc-screen').classList.contains('active')) {
-    toast('📞 مكالمة واردة! افتح الهاتف للرد.');
-  }
-}
-
-function answerCall() {
-  if (state.phase !== 'ringing') return;
-  clearInterval(state.ringInterval);
-  state.phase = 'active';
-  playSound('click');
-  
-  updatePhoneUI();
-  updatePCUI();
-  
-  // إضافة رسالة ترحيب
-  addMessage('sys', '📞 تم الرد على المكالمة');
-  setTimeout(() => {
-    addMessage('customer', state.customer.intro);
-    speak(state.customer.intro);
-  }, 800);
-}
-
-function generateCustomer() {
-  const p = pick(PROBLEMS);
-  const c = {
-    name: pick(NAMES),
-    number: '09' + rnd(10000000, 99999999),
-    problem: p,
-    data: p.data(),
-    revealed: false,
-    look: { skin: pick(['#f3cba6','#e6b183','#d19a6a']), shirt: pick(['#2b5d8a','#3a6b4f']), bg: pick(['#1b3a5c','#1d4a3c']) }
-  };
-  c.intro = p.intro(c);
-  return c;
-}
-
-// ==========================================
-// 5. تحديث الواجهات
-// ==========================================
-function updateUI() {
-  updatePhoneUI();
-  updatePCUI();
-}
-
-function updatePhoneUI() {
-  const container = $('#phone-content');
-  if (state.phase === 'ringing') {
-    container.innerHTML = `
-      <div class="incoming-call">
-        <div class="caller-avatar">👤</div>
-        <div class="caller-name">${state.customer.name}</div>
-        <div class="caller-number">رقم مجهول</div>
-        <div class="call-actions">
-          <button class="btn-call btn-hang" onclick="endCall(true)">✖</button>
-          <button class="btn-call btn-answer" onclick="answerCall()">📞</button>
-        </div>
-      </div>
-    `;
-  } else if (state.phase === 'active') {
-    if (state.activeTab === 'calls') {
-      container.innerHTML = `
-        <div style="width:100%; display:flex; flex-direction:column; gap:15px;">
-          <div style="text-align:center; margin-bottom:20px;">
-            <div class="caller-avatar" style="margin:0 auto; width:80px; height:80px; font-size:30px;">👤</div>
-            <h3 style="margin-top:10px; color:#fff;">${state.customer.name}</h3>
-            <p style="color:#10b981; font-size:12px; margin-top:5px;">● متصل</p>
+    <div class="desk-elements">
+      <!-- Phone Device -->
+      <div id="desk-phone" class="desk-item">
+        <div class="mini-phone">
+          <div class="mini-phone-screen">
+            <div class="mini-phone-icon" id="desk-phone-icon">📞</div>
           </div>
-          <div style="background:#1e293b; border-radius:12px; padding:15px; font-size:14px; line-height:1.6; color:#cbd5e1;">
-            ${state.chatHistory.length > 0 ? state.chatHistory[state.chatHistory.length-1].text : '...'}
+        </div>
+        <div class="desk-item-label">الهاتف المحمول</div>
+      </div>
+
+      <!-- PC Device -->
+      <div id="desk-pc" class="desk-item">
+        <div class="mini-pc">
+          <div class="mini-pc-screen">
+            <div class="mini-pc-header"></div>
+            <div class="mini-pc-body"></div>
           </div>
-          <button class="btn-call btn-hang" style="width:100%; border-radius:12px; height:50px; margin-top:20px;" onclick="endCall(false)">إنهاء المكالمة</button>
         </div>
-      `;
-    } else {
-      // تبويب المعلومات
-      container.innerHTML = `
-        <div style="width:100%; text-align:right; color:#cbd5e1; padding:10px;">
-          <h3 style="color:#38bdf8; margin-bottom:20px; border-bottom:1px solid #334155; padding-bottom:10px;">بيانات المشترك</h3>
-          <p style="margin-bottom:10px;"><strong>الاسم:</strong> ${state.customer.name}</p>
-          <p style="margin-bottom:10px;"><strong>الرقم:</strong> ${state.customer.revealed ? state.customer.number : '**********'}</p>
-          <p style="margin-bottom:10px;"><strong>المشكلة:</strong> ${state.customer.problem.title}</p>
-          <p style="margin-bottom:10px;"><strong>نوع المشكلة:</strong> ${state.customer.problem.isScam ? '⚠️ مشبوهة' : '✅ عادية'}</p>
-          <p style="margin-bottom:10px;"><strong>الرضا:</strong> ${state.satisfaction}%</p>
+        <div class="mini-pc-stand"></div>
+        <div class="mini-pc-base"></div>
+        <div class="desk-item-label">نظام Syriatel CRM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Phone Overlay (Zoomed Screen) -->
+  <div id="phone-screen" class="device-overlay">
+    <div class="phone-container">
+      <button class="close-btn" onclick="closeAll()">&times;</button>
+      <div class="phone-notch"></div>
+      
+      <div class="phone-header">
+        <h4 style="font-size: 0.9rem; color: var(--text-muted);">Syriatel Mobile</h4>
+        <div class="phone-nav-tabs">
+          <div class="phone-tab active" id="tab-call" onclick="switchPhoneTab('call')">المكالمات</div>
+          <div class="phone-tab" id="tab-tools" onclick="switchPhoneTab('tools')">الأدوات</div>
         </div>
-      `;
+      </div>
+
+      <div class="phone-body">
+        <div id="incoming-call">
+          <div class="caller-avatar" id="call-avatar">👤</div>
+          <div class="caller-info">
+            <h3 id="caller-name">لا توجد مكالمات</h3>
+            <p id="caller-number">في انتظار الاتصال...</p>
+          </div>
+          <div class="call-actions" id="call-actions" style="display: none;">
+            <button class="call-btn accept" onclick="answerCall()">📞</button>
+            <button class="call-btn reject" onclick="rejectCall()">📵</button>
+          </div>
+          <button class="start-btn" style="display:none; margin-top:20px; width:100%; border-radius:12px;" id="end-call-btn" onclick="endCall(false)">إنهاء المكالمة</button>
+        </div>
+
+        <div id="phone-tools">
+          <div class="tool-card" onclick="useTool('lookup')">
+            <span class="tool-icon">🔍</span>
+            <span>التحقق من الحساب</span>
+          </div>
+          <div class="tool-card" onclick="useTool('linecheck')">
+            <span class="tool-icon">📶</span>
+            <span>فحص حالة الخط</span>
+          </div>
+          <div class="tool-card" onclick="useTool('recharge')">
+            <span class="tool-icon">💳</span>
+            <span>شحن رصيد</span>
+          </div>
+          <div class="tool-card" onclick="useTool('transfer')">
+            <span class="tool-icon">💸</span>
+            <span>تحويل رصيد</span>
+          </div>
+          <div class="tool-card" onclick="useTool('ticket')">
+            <span class="tool-icon">🎫</span>
+            <span>فتح تذكرة</span>
+          </div>
+          <div class="tool-card" onclick="useTool('restart')">
+            <span class="tool-icon">🔄</span>
+            <span>إعادة التشغيل</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. PC Overlay (Zoomed Screen) -->
+  <div id="pc-screen" class="device-overlay">
+    <div class="pc-container">
+      <button class="close-btn" onclick="closeAll()">&times;</button>
+      
+      <div class="pc-topbar">
+        <div class="pc-topbar-title">
+          <span>🖥️</span> نظام خدمة المشتركين CRM - سيريتل
+        </div>
+      </div>
+
+      <div class="pc-layout">
+        <div class="crm-sidebar">
+          <div class="customer-profile">
+            <div class="customer-avatar-lg" id="pc-avatar">👤</div>
+            <h4 id="pc-customer-name">لا يوجد زبون</h4>
+            <p id="pc-customer-num" style="font-size: 0.8rem; color: var(--text-muted);">—</p>
+            <p id="pc-customer-personality" style="font-size: 0.75rem; color: var(--syriatel-red); margin-top:5px;">—</p>
+          </div>
+
+          <div class="satisfaction-box">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+              <span>مستوى الرضا</span>
+              <span id="satisfaction-val">60%</span>
+            </div>
+            <div class="satisfaction-bar-bg">
+              <div class="satisfaction-bar-fill" id="satisfaction-bar" style="width: 60%; background: var(--accent-green);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="crm-chat-area">
+          <div id="chat-messages">
+            <div class="message customer">مرحباً بك في مركز خدمة سيريتل. الرجاء الرد على المكالمة أولاً.</div>
+          </div>
+
+          <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="اكتب ردك للزبون هنا...">
+            <button id="send-btn">إرسال</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Tool Modal -->
+  <div id="tool-modal">
+    <div class="modal-box">
+      <h3 id="modal-title">إجراء</h3>
+      <div id="modal-inputs"></div>
+      <div class="modal-actions">
+        <button class="ok" id="modal-ok">تنفيذ</button>
+        <button class="cancel" id="modal-cancel">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================
+       PART A: THE BRAIN (Logic, Psychology, AI Engine)
+       ========================================================= */
+    const BrainDB = {
+        names: ['أحمد', 'ليلى', 'سمير', 'رنا', 'خالد', 'نور', 'مازن', 'سلمى', 'فادي', 'هبة'],
+        surnames: ['الحلبي', 'الشامي', 'درويش', 'العلي', 'الحموي', 'الخطيب', 'الرفاعي', 'حداد', 'نجار', 'صالح'],
+        personalities: [
+            { id: 'calm', name: 'هادئ', rate: 0.9, patience: 2.0 },
+            { id: 'angry', name: 'غاضب', rate: 1.2, patience: 0.5 },
+            { id: 'busy', name: 'مستعجل', rate: 1.3, patience: 0.7 },
+            { id: 'polite', name: 'مؤدب', rate: 0.95, patience: 1.5 }
+        ],
+        realProblems: [
+            { id: 'recharge', title: 'شحن رصيد', requiredTools: ['lookup', 'recharge'], dataGen: () => ({ amount: [5000,10000,15000][Math.floor(Math.random()*3)] }), intro: c => `ألو؟ أنا ${c.name}. بدي اشحن رصيدي بـ ${c.data.amount} ليرة بس ما عندي تطبيق.` },
+            { id: 'transfer', title: 'تحويل رصيد', requiredTools: ['lookup', 'transfer'], dataGen: () => ({ amount: [2000,5000][Math.floor(Math.random()*2)], recipient: '09' + Math.floor(10000000 + Math.random() * 90000000) }), intro: c => `مرحبا، أنا ${c.name}. بدي حوّل ${c.data.amount} ليرة لرقم ${c.data.recipient}.` },
+            { id: 'slow_net', title: 'الإنترنت بطيء', requiredTools: ['linecheck', 'restart'], dataGen: () => ({}), intro: c => `ألو، ${c.name} معك. النت عندي صار بطيء كتير من الصبح.` }
+        ],
+        scamProblems: [
+            { id: 'scam_money', title: 'سرقة رصيد (نصب)', requiredTools: ['ticket'], isScam: true, intro: c => `ألو! أنا ${c.name}. انسرق رصيدي كله! بدي تعويض فوري 50 ألف ليرة هلأ!` },
+            { id: 'scam_package', title: 'طلب باقة مجانية (نصب)', requiredTools: ['ticket'], isScam: true, intro: c => `مرحبا ${c.name}. الشبكة مقطوعة من يومين. بدي باقة إنترنت مجانية شهر!` }
+        ]
+    };
+
+    class NLPEngine {
+        analyzeIntent(text) {
+            const clean = text.replace(/[إأآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه').toLowerCase();
+            if (clean.includes('رقم') || clean.includes('نمره') || clean.includes('حساب')) return 'ask_number';
+            if (clean.includes('اتفهم') || clean.includes('اسف') || clean.includes('اعتذر') || clean.includes('حق')) return 'empathy';
+            if (clean.includes('شكرا') || clean.includes('مشكور') || clean.includes('يعطيك')) return 'thanks';
+            if (clean.includes('ما بقدر') || clean.includes('غير ممكن') || clean.includes('قانون')) return 'refuse';
+            return 'generic';
+        }
     }
-  } else {
-    container.innerHTML = `<div class="msg sys" style="color:#64748b;">لا توجد مكالمات حالياً...</div>`;
-  }
-}
 
-function updatePCUI() {
-  // تحديث الأدوات
-  const toolsContainer = $('#pc-tools');
-  toolsContainer.innerHTML = '<h3>أدوات النظام</h3>';
-  TOOLS.forEach(tool => {
-    const btn = document.createElement('button');
-    btn.className = 'pc-tool-btn';
-    if (state.doneTools.includes(tool.id)) btn.classList.add('done');
-    btn.innerHTML = `<span>${tool.icon}</span> <span>${tool.name}</span>`;
-    btn.onclick = () => handleToolClick(tool);
-    btn.disabled = state.phase !== 'active' || !state.customer.revealed;
-    if (btn.disabled) btn.style.opacity = '0.5';
-    toolsContainer.appendChild(btn);
-  });
+    class CallCenterBrain {
+        constructor() {
+            this.nlp = new NLPEngine();
+            this.state = { phase: 'idle', customer: null, satisfaction: 60, patience: 10, isNumberRevealed: false, toolsUsed: [], tone: 'neutral' };
+        }
+        generateCustomer() {
+            const isScam = Math.random() < 0.25;
+            const pool = isScam ? BrainDB.scamProblems : BrainDB.realProblems;
+            const problem = pool[Math.floor(Math.random() * pool.length)];
+            const pers = BrainDB.personalities[Math.floor(Math.random() * 4)];
+            
+            const c = {
+                name: BrainDB.names[Math.floor(Math.random() * BrainDB.names.length)] + ' ' + BrainDB.surnames[Math.floor(Math.random() * BrainDB.surnames.length)],
+                msisdn: '09' + Math.floor(10000000 + Math.random() * 90000000),
+                personality: pers, problem: problem, data: problem.dataGen(), isScam: isScam
+            };
+            c.intro = problem.intro(c);
+            this.state = { phase: 'active', customer: c, satisfaction: 60, patience: pers.patience * 10, isNumberRevealed: false, toolsUsed: [], tone: 'neutral' };
+            return c;
+        }
+        processEmployeeMessage(text) {
+            if (this.state.phase !== 'active') return null;
+            const c = this.state.customer;
+            const intent = this.nlp.analyzeIntent(text);
+            this.state.patience -= 0.5;
+            let reply = '', satChange = 0;
 
-  // تحديث الدردشة
-  const chat = $('#chat-messages');
-  chat.innerHTML = '';
-  if (state.phase !== 'active') {
-    chat.innerHTML = '<div class="msg sys">لا توجد مكالمة نشطة. ارد على الهاتف أولاً.</div>';
-    return;
-  }
-  
-  state.chatHistory.forEach(msg => {
-    const div = document.createElement('div');
-    div.className = `msg ${msg.role === 'customer' ? 'cust' : msg.role === 'agent' ? 'agent' : 'sys'}`;
-    div.textContent = msg.text;
-    chat.appendChild(div);
-  });
-  chat.scrollTop = chat.scrollHeight;
-  $('#pc-status').textContent = `متصل مع: ${state.customer.name} | الرضا: ${state.satisfaction}%`;
-}
+            if (intent === 'ask_number' && !this.state.isNumberRevealed) {
+                this.state.isNumberRevealed = true;
+                reply = `أكيد، رقمي هو ${c.msisdn}.`;
+                satChange = +5;
+            } else if (intent === 'empathy') {
+                reply = c.personality.id === 'angry' ? 'إيه والله أنا متضايق كتير.' : 'شكراً لتفهمك.';
+                satChange = +8;
+            } else if (intent === 'refuse' && c.isScam) {
+                reply = `شو؟! يعني ما بدك تعوضني؟! إنت نصاب!`;
+                satChange = -15;
+            } else {
+                reply = c.isScam ? 'لسا بدي حقي!' : (this.state.tone === 'angry' ? 'من ساعة عم احكي معك وما في نتيجة!' : 'طيب، شو رح تعمل هلق؟');
+                satChange = -2;
+            }
 
-function addMessage(role, text) {
-  state.chatHistory.push({ role, text });
-  if (role === 'customer') speak(text);
-  updatePCUI();
-  updatePhoneUI();
-}
+            this.state.satisfaction = Math.max(0, Math.min(100, this.state.satisfaction + satChange));
+            this.updateTone();
+            
+            if (this.state.satisfaction < 15 || this.state.patience < 0) {
+                reply = `خلص! ما في حدا بيهتم! رح سكّر.`;
+                this.state.phase = 'ended';
+            }
+            return { reply, satisfaction: this.state.satisfaction, tone: this.state.tone };
+        }
+        executeTool(toolId, params) {
+            if (this.state.phase !== 'active') return { success: false, msg: 'لا توجد مكالمة' };
+            const c = this.state.customer;
+            if (!this.state.isNumberRevealed) { this.state.satisfaction -= 10; return { success: false, msg: 'يجب سؤال الزبون عن رقمه أولاً!' }; }
+            if (!c.problem.requiredTools.includes(toolId)) { this.state.satisfaction -= 15; this.state.patience -= 2; return { success: false, msg: 'إجراء غير مفيد للمشكلة!' }; }
+            if (this.state.toolsUsed.includes(toolId)) return { success: false, msg: 'منفذ مسبقاً' };
+            
+            if (toolId === 'recharge' && Number(params.amount) !== c.data.amount) return { success: false, msg: 'المبلغ غير مطابق!' };
+            if (toolId === 'transfer' && (Number(params.amount) !== c.data.amount || params.recipient !== c.data.recipient)) return { success: false, msg: 'بيانات التحويل خاطئة!' };
 
-// ==========================================
-// 6. الشاشات المنبثقة (الهاتف والكمبيوتر)
-// ==========================================
-function openPC() {
-  if (!state.customer && state.phase === 'waiting') {
-    toast('لا توجد مكالمة نشطة حالياً. انتظر اتصال الزبون.');
-  }
-  $('#pc-screen').classList.add('active');
-  $('#office').classList.add('blurred');
-  updatePCUI();
-}
+            this.state.toolsUsed.push(toolId);
+            this.state.satisfaction = Math.min(100, this.state.satisfaction + 20);
+            this.updateTone();
 
-function closePC() {
-  $('#pc-screen').classList.remove('active');
-  if (!$('#phone-screen').classList.contains('active')) {
-    $('#office').classList.remove('blurred');
-  }
-}
+            const isComplete = c.problem.requiredTools.every(t => this.state.toolsUsed.includes(t));
+            let reply = '';
+            if (isComplete) {
+                reply = c.isScam ? 'طيب بستنى التذكرة. بس أنا لسا بدي حقي!' : 'شكراً كتير! الله يعطيك العافية، انحلت المشكلة.';
+                if (!c.isScam) this.state.satisfaction = 100;
+            } else {
+                reply = 'طيب، شو الخطوة التانية؟';
+            }
+            return { success: true, msg: 'نجاح', reply, isComplete, satisfaction: this.state.satisfaction };
+        }
+        updateTone() {
+            if (this.state.satisfaction > 75) this.state.tone = 'happy';
+            else if (this.state.satisfaction > 40) this.state.tone = 'neutral';
+            else if (this.state.satisfaction > 20) this.state.tone = 'annoyed';
+            else this.state.tone = 'angry';
+        }
+    }
 
-function openPhone() {
-  $('#phone-screen').classList.add('active');
-  $('#office').classList.add('blurred');
-  updatePhoneUI();
-}
+    const brain = new CallCenterBrain();
 
-function closePhone() {
-  $('#phone-screen').classList.remove('active');
-  if (!$('#pc-screen').classList.contains('active')) {
-    $('#office').classList.remove('blurred');
-  }
-}
+    /* =========================================================
+       PART B: UI INTEGRATION (Connecting Brain to Design)
+       ========================================================= */
+    const splash = document.getElementById('splash-screen');
+    const gameUi = document.getElementById('game-ui');
+    const phoneOverlay = document.getElementById('phone-screen');
+    const pcOverlay = document.getElementById('pc-screen');
+    
+    // Elements
+    const uiCallerName = document.getElementById('caller-name');
+    const uiCallerNumber = document.getElementById('caller-number');
+    const uiCallActions = document.getElementById('call-actions');
+    const uiEndCallBtn = document.getElementById('end-call-btn');
+    const uiChatMessages = document.getElementById('chat-messages');
+    const uiChatInput = document.getElementById('chat-input');
+    const uiSendBtn = document.getElementById('send-btn');
+    const uiPcName = document.getElementById('pc-customer-name');
+    const uiPcNum = document.getElementById('pc-customer-num');
+    const uiPcPers = document.getElementById('pc-customer-personality');
+    const uiSatVal = document.getElementById('satisfaction-val');
+    const uiSatBar = document.getElementById('satisfaction-bar');
+    const uiDeskPhoneIcon = document.getElementById('desk-phone-icon');
+    
+    let callTimeout;
 
-function switchTab(tab) {
-  state.activeTab = tab;
-  document.querySelectorAll('.phone-tab').forEach(t => t.classList.remove('active'));
-  event.target.closest('.phone-tab').classList.add('active');
-  updatePhoneUI();
-}
-
-// ==========================================
-// 7. أدوات الكمبيوتر
-// ==========================================
-function handleToolClick(tool) {
-  if (!state.customer) return;
-  playSound('click');
-  
-  if (tool.fields) {
-    // فتح مودال
-    $('#modal-title').textContent = tool.name;
-    const inputs = $('#modal-inputs'); inputs.innerHTML = '';
-    tool.fields.forEach(f => {
-      inputs.innerHTML += `<label style="display:block; margin-bottom:5px; color:#94a3b8; font-size:12px;">${f.label}</label>
-                           <input type="${f.type}" id="input-${f.key}" placeholder="${f.label}">`;
+    // Start Game
+    document.getElementById('start-btn').addEventListener('click', () => {
+        splash.style.opacity = '0';
+        setTimeout(() => { splash.style.display = 'none'; gameUi.style.display = 'flex'; }, 600);
+        scheduleCall(3000); // First call after 3 seconds
     });
-    $('#modal').classList.add('active');
-    window.currentTool = tool;
-  } else {
-    // تنفيذ مباشر
-    executeTool(tool.id, {});
-  }
-}
 
-function submitModal() {
-  const tool = window.currentTool;
-  const vals = {};
-  tool.fields.forEach(f => {
-    vals[f.key] = document.getElementById(`input-${f.key}`).value.trim();
-  });
-  closeModal();
-  executeTool(tool.id, vals);
-}
+    function scheduleCall(delay) {
+        clearTimeout(callTimeout);
+        callTimeout = setTimeout(() => {
+            if (brain.state.phase === 'idle' || brain.state.phase === 'ended') {
+                startIncomingCall();
+            } else {
+                scheduleCall(5000); // Retry if busy
+            }
+        }, delay);
+    }
 
-function closeModal() {
-  $('#modal').classList.remove('active');
-  window.currentTool = null;
-}
+    function startIncomingCall() {
+        brain.generateCustomer();
+        uiDeskPhoneIcon.innerHTML = '📳'; // Visual cue on desk
+        playSound('ring');
+        
+        // Update Phone UI
+        uiCallerName.textContent = brain.state.customer.name;
+        uiCallerNumber.textContent = 'رقم مجهول';
+        uiCallActions.style.display = 'flex';
+        uiEndCallBtn.style.display = 'none';
+        
+        // Switch to call tab automatically
+        switchPhoneTab('call');
+    }
 
-function executeTool(toolId, params) {
-  const c = state.customer;
-  
-  // إذا ما سأل عن الرقم
-  if (!c.revealed) {
-    toast('⚠️ يجب أن تسأل الزبون عن رقمه أولاً!');
-    playSound('error');
-    return;
-  }
-  
-  // هل الأداة مفيدة لهذه المشكلة؟
-  if (!c.problem.steps.includes(toolId)) {
-    toast('❌ هذا الإجراء غير مفيد للمشكلة الحالية');
-    playSound('error');
-    state.satisfaction -= 5;
-    addMessage('sys', '⚠️ محاولة إجراء غير مفيد');
-    return;
-  }
-  
-  if (state.doneTools.includes(toolId)) {
-    toast('تم تنفيذ هذا الإجراء مسبقاً');
-    return;
-  }
-  
-  // التحقق من المدخلات
-  if (toolId === 'recharge' && Number(params.amount) !== c.data.amount) {
-    toast('❌ المبلغ غير مطابق لما طلبه الزبون!'); playSound('error'); return;
-  }
-  if (toolId === 'transfer' && (Number(params.amount) !== c.data.amount || params.recipient !== c.data.recipient)) {
-    toast('❌ بيانات التحويل غير صحيحة!'); playSound('error'); return;
-  }
+    function answerCall() {
+        if (brain.state.phase !== 'active') return;
+        playSound('click');
+        uiCallerName.textContent = 'جاري المكالمة...';
+        uiCallerNumber.textContent = brain.state.customer.problem.title;
+        uiCallActions.style.display = 'none';
+        uiEndCallBtn.style.display = 'block';
+        uiDeskPhoneIcon.innerHTML = '🟢'; // Connected
+        
+        // Init PC UI
+        uiPcName.textContent = brain.state.customer.name;
+        uiPcNum.textContent = brain.state.customer.msisdn;
+        uiPcPers.textContent = 'الشخصية: ' + brain.state.customer.personality.name;
+        updateSatisfactionUI();
+        
+        uiChatMessages.innerHTML = ''; // Clear chat
+        addChatMsg('customer', brain.state.customer.intro);
+        speak(brain.state.customer.intro, brain.state.customer.personality.rate);
+    }
 
-  // نجاح الإجراء
-  state.doneTools.push(toolId);
-  state.satisfaction = Math.min(100, state.satisfaction + 15);
-  playSound('success');
-  addMessage('sys', `✅ تم تنفيذ: ${TOOLS.find(t => t.id === toolId).name}`);
-  updatePCUI();
+    function rejectCall() {
+        if (brain.state.phase !== 'active') return;
+        playSound('error');
+        endCall(true);
+    }
 
-  // هل اكتملت الخطوات؟
-  if (c.problem.steps.every(s => state.doneTools.includes(s))) {
-    setTimeout(() => {
-      addMessage('sys', '🎉 تم حل المشكلة بالكامل!');
-      if (c.problem.isScam) {
-        addMessage('customer', c.problem.scamReact());
-      } else {
-        addMessage('customer', 'شكراً كتير! الله يعطيك العافية، انحلت المشكلة.');
-      }
-      setTimeout(() => endCall(false), 3000);
-    }, 1000);
-  } else {
-    addMessage('customer', pick(['طيب... وبعدين؟', 'شو الخطوة التانية؟', 'أنا مستعجل شوي.']));
-  }
-}
+    function endCall(abandoned) {
+        if (abandoned) addChatMsg('customer', 'الزبون أغلق الخط.');
+        brain.state.phase = 'idle';
+        uiCallerName.textContent = 'لا توجد مكالمات';
+        uiCallerNumber.textContent = 'في انتظار الاتصال...';
+        uiCallActions.style.display = 'none';
+        uiEndCallBtn.style.display = 'none';
+        uiDeskPhoneIcon.innerHTML = '📞';
+        
+        // Reset PC
+        uiPcName.textContent = 'لا يوجد زبون';
+        uiPcNum.textContent = '—';
+        uiPcPers.textContent = '—';
+        uiChatInput.disabled = true;
+        uiSendBtn.disabled = true;
+        
+        // Schedule next call (1 to 2 minutes)
+        scheduleCall(Math.floor(Math.random() * 60000) + 60000);
+    }
 
-// ==========================================
-// 8. الدردشة (الرسائل)
-// ==========================================
-async function sendMessage() {
-  const input = $('#chat-input-field');
-  const text = input.value.trim();
-  if (!text || state.phase !== 'active') return;
-  
-  input.value = '';
-  addMessage('agent', text);
-  playSound('click');
-  
-  // التحقق من طلب الرقم
-  if (text.includes('رقم') || text.includes('نمرة') || text.includes('حسابك')) {
-    state.customer.revealed = true;
-    addMessage('customer', `أكيد، رقمي هو ${state.customer.number}`);
-    updatePCUI();
-    return;
-  }
-  
-  // إذا كان الزبون نصاب
-  if (state.customer.problem.isScam && text.includes('تعويض')) {
-    addMessage('customer', 'إنت نصاب! ما رح تعطيني شي! بدي مديرك!');
-    state.satisfaction -= 20;
-    return;
-  }
+    // Chat Logic
+    uiSendBtn.addEventListener('click', () => {
+        const text = uiChatInput.value.trim();
+        if (!text || brain.state.phase !== 'active') return;
+        uiChatInput.value = '';
+        addChatMsg('agent', text);
+        
+        const res = brain.processEmployeeMessage(text);
+        setTimeout(() => {
+            addChatMsg('customer', res.reply);
+            speak(res.reply, brain.state.customer.personality.rate);
+            updateSatisfactionUI();
+            if (brain.state.phase === 'ended') setTimeout(() => endCall(true), 2000);
+        }, 800);
+    });
 
-  // محرك ذكاء اصطناعي محلي بسيط للردود
-  await sleep(800);
-  let reply = '';
-  if (state.customer.problem.isScam) {
-    reply = pick(['أنا بدي حقي هلأ!', 'ليش عم تماطلني؟', 'إذا ما عوضتوني بروح عالشرطة!']);
-  } else {
-    reply = pick(['طيب، وين وصلنا؟', 'فهمت، بس أنا بدي حل.', 'يا ريت تعجل شوي.']);
-  }
-  addMessage('customer', reply);
-}
+    uiChatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') uiSendBtn.click();
+    });
 
-function handleEnter(e) {
-  if (e.key === 'Enter') sendMessage();
-}
+    function addChatMsg(role, text) {
+        const div = document.createElement('div');
+        div.className = `message ${role}`;
+        div.textContent = text;
+        uiChatMessages.appendChild(div);
+        uiChatMessages.scrollTop = uiChatMessages.scrollHeight;
+    }
 
-// ==========================================
-// 9. إنهاء المكالمة
-// ==========================================
-function endCall(abandoned) {
-  if (state.phase !== 'active' && state.phase !== 'ringing') return;
-  
-  clearInterval(state.ringInterval);
-  
-  if (abandoned) {
-    addMessage('sys', '📴 الزبون أغلق الخط');
-  } else {
-    addMessage('sys', '📴 انتهت المكالمة');
-  }
-  
-  state.phase = 'waiting';
-  state.customer = null;
-  state.doneTools = [];
-  state.chatHistory = [];
-  
-  updatePCUI();
-  updatePhoneUI();
-  
-  // إغلاق الشاشات
-  closePC();
-  closePhone();
-  
-  // جدولة مكالمة جديدة بعد دقيقة إلى دقيقتين
-  const delay = rnd(60000, 120000);
-  toast('في انتظار المكالمة التالية...');
-  scheduleCall(delay);
-}
+    function updateSatisfactionUI() {
+        const sat = brain.state.satisfaction;
+        uiSatVal.textContent = sat + '%';
+        uiSatBar.style.width = sat + '%';
+        uiSatBar.style.background = sat > 70 ? 'var(--accent-green)' : sat > 40 ? '#eab308' : 'var(--syriatel-red)';
+    }
 
-// ==========================================
-// 10. التهيئة
-// ==========================================
-$('#start-btn').onclick = initGame;
+    // Phone Tabs
+    function switchPhoneTab(tab) {
+        document.getElementById('tab-call').classList.toggle('active', tab === 'call');
+        document.getElementById('tab-tools').classList.toggle('active', tab === 'tools');
+        document.getElementById('incoming-call').style.display = tab === 'call' ? 'flex' : 'none';
+        document.getElementById('phone-tools').style.display = tab === 'tools' ? 'grid' : 'none';
+    }
 
-// الساعة
-setInterval(() => {
-  const d = new Date();
-  $('#phone-time').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-}, 1000);
+    // Device Overlays
+    document.getElementById('desk-phone').addEventListener('click', () => phoneOverlay.classList.add('active'));
+    document.getElementById('desk-pc').addEventListener('click', () => {
+        pcOverlay.classList.add('active');
+        uiChatInput.disabled = brain.state.phase !== 'active';
+        uiSendBtn.disabled = brain.state.phase !== 'active';
+    });
+    
+    function closeAll() {
+        phoneOverlay.classList.remove('active');
+        pcOverlay.classList.remove('active');
+    }
 
-</script>
+    // Tools Logic
+    const TOOLS_DB = {
+        lookup: { name: 'التحقق من الحساب', fields: [] },
+        linecheck: { name: 'فحص حالة الخط', fields: [] },
+        recharge: { name: 'شحن رصيد', fields: [{ key: 'amount', label: 'المبلغ', type: 'number' }] },
+        transfer: { name: 'تحويل رصيد', fields: [{ key: 'recipient', label: 'رقم المستلم', type: 'text' }, { key: 'amount', label: 'المبلغ', type: 'number' }] },
+        ticket: { name: 'فتح تذكرة', fields: [] },
+        restart: { name: 'إعادة تشغيل', fields: [] }
+    };
+
+    function useTool(toolId) {
+        if (brain.state.phase !== 'active') return;
+        const tool = TOOLS_DB[toolId];
+        
+        if (tool.fields.length > 0) {
+            document.getElementById('modal-title').textContent = tool.name;
+            const inputsDiv = document.getElementById('modal-inputs');
+            inputsDiv.innerHTML = '';
+            tool.fields.forEach(f => {
+                inputsDiv.innerHTML += `<label style="display:block; font-size:12px; margin-bottom:4px; color:#94a3b8;">${f.label}</label>
+                                        <input type="${f.type}" id="input-${f.key}" placeholder="${f.label}">`;
+            });
+            document.getElementById('tool-modal').classList.add('active');
+            
+            document.getElementById('modal-ok').onclick = () => {
+                const params = {};
+                tool.fields.forEach(f => { params[f.key] = document.getElementById(`input-${f.key}`).value; });
+                closeModal();
+                executeToolAction(toolId, params);
+            };
+        } else {
+            executeToolAction(toolId, {});
+        }
+    }
+
+    function executeToolAction(toolId, params) {
+        const res = brain.executeTool(toolId, params);
+        if (res.success) {
+            playSound('success');
+            addChatMsg('customer', res.reply);
+            speak(res.reply);
+            updateSatisfactionUI();
+            if (res.isComplete) {
+                setTimeout(() => endCall(false), 4000);
+            }
+        } else {
+            playSound('error');
+            alert(res.msg); // Simple alert for errors
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('tool-modal').classList.remove('active');
+    }
+    document.getElementById('modal-cancel').onclick = closeModal;
+
+    // Sound & Speech Engine
+    let AC = null;
+    function playSound(type) {
+        try {
+            if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+            if (AC.state === 'suspended') AC.resume();
+            const o = AC.createOscillator(), g = AC.createGain();
+            o.connect(g); g.connect(AC.destination);
+            if (type === 'ring') { o.frequency.value = 1000; g.gain.value = 0.1; o.start(); setTimeout(() => { o.frequency.value = 1200; }, 150); setTimeout(() => { o.stop(); }, 300); }
+            else if (type === 'click') { o.frequency.value = 800; g.gain.value = 0.05; o.start(); o.stop(AC.currentTime + 0.05); }
+            else if (type === 'success') { o.frequency.value = 1000; g.gain.value = 0.1; o.start(); setTimeout(() => { o.frequency.value = 1500; }, 100); setTimeout(() => { o.stop(); }, 250); }
+            else if (type === 'error') { o.frequency.value = 300; o.type = 'sawtooth'; g.gain.value = 0.1; o.start(); o.stop(AC.currentTime + 0.2); }
+        } catch (e) {}
+    }
+
+    let voices = [];
+    if ('speechSynthesis' in window) {
+        speechSynthesis.onvoiceschanged = () => { voices = speechSynthesis.getVoices(); };
+        voices = speechSynthesis.getVoices();
+    }
+    function speak(text, rate = 1) {
+        if (!('speechSynthesis' in window)) return;
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        const ar = voices.find(v => v.lang.startsWith('ar'));
+        if (ar) u.voice = ar;
+        u.lang = 'ar-SA'; u.rate = rate; u.pitch = 1;
+        speechSynthesis.speak(u);
+    }
+
+  </script>
 </body>
 </html>
